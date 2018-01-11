@@ -2,10 +2,7 @@
 # an instruction consists of an opcode followed by 0 or more operands
 
 import sys
-import constants
-import json
 from instruction import Instruction
-from exceptions import AsmSyntaxError
 
 
 def parse_file(program_filename):
@@ -60,32 +57,12 @@ def parse_file(program_filename):
             instruction = Instruction(opcode, operands, line_n, line)
 
             instructions.append(instruction)
-
-            # TODO: Remove commented code
-
-            """
-
-            # TODO: create instruction object
-
-            instruction = list()
-            instruction.append(words[0].upper())
-            
-            operands = " ".join(words[1:])
-            
-            # print("OPCODE:", instruction[0])
-            # print("operands:", operands)
-            
-            instruction += parse_operand_string(operands)
-            
-            # print("full instruction list:",instruction)
-            instructions.append(instruction)
-            """
     
     # replace each branch label with the program address
 
     unused_labels = set(labels.keys())
     for instruction in instructions:
-        for i, e in enumerate(instruction.operands.split()):
+        for e in instruction.operands.split():
             if e in labels:
                 unused_labels.remove(e)
                 assert isinstance(instruction.operands, str)
@@ -93,51 +70,10 @@ def parse_file(program_filename):
 
     if len(unused_labels) > 0:
         print("Warning: Unused label(s), {}".format(", ".join(unused_labels)), file=sys.stderr)
-    
+
     return instructions
-    
-
-# TODO: Move logic from this func into opcode parser?
-
-def parse_operand_string(op_string):
-    operands = []
-    begin_op = 0
-    i = 0
-    while i < len(op_string):
-        c = op_string[i]
-        if c == "[":
-            next_bracket = op_string.find("[", i + 1)
-            end_bracket = op_string.find("]", i)
-            if next_bracket != -1 and next_bracket < end_bracket:
-                raise Exception("Found nested brackets")  # TODO, exit program with error msg
-            if end_bracket == -1:
-                raise Exception("Brackets not closed")
-            op = op_string[i:end_bracket + 1].strip()
-            operands.append(op)
-            i = end_bracket + 1
-            begin_op = i
-            continue
-        elif c == ",":
-            op = op_string[begin_op:i].strip()
-            begin_op = i + 1
-            if op == "":
-                raise Exception("Empty operand at line, col")
-            operands.append(op)
-        i += 1
-    if begin_op < i:
-        op = op_string[begin_op:i].strip()
-        if op == "":
-            raise Exception("Empty operand at line, col")
-        operands.append(op)
-    
-    return operands
-
-
-
-# MOV R2, (R2, 4)
 
 
 # debug
 if __name__ == "__main__":
     parse_file("input.fal")
-

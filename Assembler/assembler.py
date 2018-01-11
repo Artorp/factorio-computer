@@ -3,8 +3,8 @@
 # input: input.fal
 # output: output.txt
 
-import sys
 import os
+import platform
 import time
 import constants
 from file_parser import parse_file
@@ -40,13 +40,13 @@ def main():
     with open(file_out, "w") as f:
         f.write(output+"\n")
 
-    # paste to clipboard
-    # TODO: Detect OS type, currently only on Windows
-    os.system("echo " + output + " | clip")
-
-    print("Done. Blueprint string on clipboard.")
+    # paste to clipboard, clip on Windows
+    if platform.system() == "Windows":
+        os.system("echo " + output + " | clip")
+        print("Done. Blueprint string on clipboard.")
+    else:
+        print("Done. Blueprint string in " + file_out)
 
 
 if __name__ == "__main__":
     main()
-

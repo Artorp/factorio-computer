@@ -1,27 +1,21 @@
 # takes a list of instructions and generates list of signals for the constant combinators PROM
 
 import sys
-import json
 
 from instruction import Instruction
-from exceptions import AsmSyntaxError, ParseOperandError
+from exceptions import ParseOperandError
 from operand_parser import OperandType, parse_operand
-import constants
 import registers
 
 opcodes = dict()
 
 
 def tag(opcode):
-    "Add function to opcode map"
+    """Add function to opcode map"""
     return lambda func: opcodes.setdefault(opcode.upper(), func)
 
 
 def inst_to_signals(instructions):
-    # TODO: use functions instead of json file
-    with open(constants.OPCODE_SIGNALS) as f:
-        opcodes_dict = json.load(f)
-
     const_comb_signals = list()
 
     for inst in instructions:
@@ -32,72 +26,22 @@ def inst_to_signals(instructions):
         instruction_signals = opcodes[opcode](inst)
 
         const_comb_signals.append(instruction_signals)
-        # TODO Write the functions
 
-        """
-        inst_dict = opcodes_dict[opcode]
-        instruction_signals = dict()
-        if "control" in inst_dict:
-            instruction_signals = {**instruction_signals, **inst_dict["control"]}
-        if "format" in inst_dict:
-            for i, f in enumerate(inst_dict["format"]):
-                operand = inst[1 + i]
-                if f.startswith("reg"):
-                    key = f.split("_")[-1]
-                    reg_index = register_to_address(operand)
-                    add_signals(instruction_signals, inst_dict[key], reg_index)
-                elif f.startswith("imm_or_reg"):
-                    # two entries this time
-                    key = f.split("_")[-1]
-                    if "," in operand:
-                        _ = operand.strip("[]")
-                        reg_str, imm = _.split(",")
-                        reg_str = reg_str.strip()
-                        imm = imm.strip()
-                        reg_i = register_to_address(reg_str)
-                        imm = to_number_or_literal(imm)
-                        add_signals(instruction_signals, inst_dict["imm_or_reg_" + key + "_reg"], reg_i)
-                        add_signals(instruction_signals, inst_dict["imm_or_reg_" + key + "_imm"], imm)
-                    else:
-                        _ = operand.strip("[]").strip()
-                        if is_number_or_literal(_):
-                            imm = to_number_or_literal(_)
-                            add_signals(instruction_signals, inst_dict["imm_or_reg_" + key + "_imm"], imm)
-                        else:
-                            reg_i = register_to_address(_)
-                            add_signals(instruction_signals, inst_dict["imm_or_reg_" + key + "_reg"], reg_i)
-                elif f.startswith("label_reg"):
-                    # also two entries
-                    key = f.split("_")[-1].strip()
-                    if is_number_or_literal(operand):
-                        adr = to_number_or_literal(operand)
-                        add_signals(instruction_signals, inst_dict["label_" + key + "_lab"], adr)
-                    else:
-                        reg_i = register_to_address(operand)
-                        add_signals(instruction_signals, inst_dict["label_" + key + "_reg"], reg_i)
-                elif f.startswith("val"):
-                    key = f.split("_")[-1].strip()
-                    if not is_number_or_literal(operand):
-                        raise Exception("Immediate value must be number or literal, was {}".format(operand))
-                    imm = to_number_or_literal(operand)
-                    add_signals(instruction_signals, inst_dict["val_" + key], imm)
-        const_comb_signals.append(instruction_signals)
-        """
     return const_comb_signals
 
 
 @tag("HLT")
-def hlt_signals(instruction):
+def hlt_inst(instruction):
     return dict()
 
 
 @tag("NOP")
-def nop_signals(instruction):
+def nop_inst(instruction):
     return {"copper-plate": 1}
 
 
 @tag("STORE")
-def store_signals(instruction):
+def store_inst(instruction):
     signals = {"copper-plate": 2}
     encoding = [
         [OperandType.REGISTER, {"signal-L": 1, "signal-1": "var"}],
@@ -109,7 +53,7 @@ def store_signals(instruction):
 
 
 @tag("LOAD")
-def store_signals(instruction):
+def store_inst(instruction):
     signals = {"copper-plate": 4}
     encoding = [
         [OperandType.REGISTER, {"signal-L": 1, "signal-1": "var"}],
@@ -121,7 +65,7 @@ def store_signals(instruction):
 
 
 @tag("B")
-def b_signals(instruction):
+def b_inst(instruction):
     signals = {"copper-plate": 7}
     encoding = [
         [OperandType.REGISTER_OR_LABEL,
@@ -132,7 +76,7 @@ def b_signals(instruction):
 
 
 @tag("BZ")
-def bz_signals(instruction):
+def bz_inst(instruction):
     signals = {"copper-plate": 7, "signal-C": 1}
     encoding = [
         [OperandType.REGISTER_OR_LABEL,
@@ -143,7 +87,7 @@ def bz_signals(instruction):
 
 
 @tag("BN")
-def bz_signals(instruction):
+def bn_inst(instruction):
     signals = {"copper-plate": 7, "signal-C": 2}
     encoding = [
         [OperandType.REGISTER_OR_LABEL,
@@ -154,7 +98,7 @@ def bz_signals(instruction):
 
 
 @tag("ALU")
-def alu_signals(instruction):
+def alu_inst(instruction):
     signals = {"copper-plate": 9}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
@@ -173,7 +117,7 @@ def alu_signals(instruction):
 
 
 @tag("MOV")
-def mov_signals(instruction):
+def mov_inst(instruction):
     signals = {"copper-plate": 9, "signal-red": 1, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
@@ -185,7 +129,7 @@ def mov_signals(instruction):
 
 
 @tag("ADD")
-def add_signals(instruction):
+def add_inst(instruction):
     signals = {"copper-plate": 9, "signal-red": 1, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
@@ -199,7 +143,7 @@ def add_signals(instruction):
 
 
 @tag("SUB")
-def sub_signals(instruction):
+def sub_inst(instruction):
     signals = {"copper-plate": 9, "signal-red": 1, "signal-2": 1, "signal-3": -1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
@@ -213,7 +157,7 @@ def sub_signals(instruction):
 
 
 @tag("CMP")
-def cmp_signals(instruction):
+def cmp_inst(instruction):
     signals = {"copper-plate": 9, "signal-2": 1, "signal-3": -1}
     encoding = [
         [OperandType.OR_REGISTER_IMMEDIATE,
@@ -226,7 +170,7 @@ def cmp_signals(instruction):
 
 
 @tag("TST")
-def add_signals(instruction):
+def add_inst(instruction):
     signals = {"copper-plate": 9, "signal-2": 1}
     encoding = [
         [OperandType.OR_REGISTER_IMMEDIATE,
@@ -237,7 +181,7 @@ def add_signals(instruction):
 
 
 @tag("MUL")
-def mul_signals(instruction):
+def mul_inst(instruction):
     signals = {"copper-plate": 9, "signal-F": 1, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
@@ -251,7 +195,7 @@ def mul_signals(instruction):
 
 
 @tag("DIV")
-def div_signals(instruction):
+def div_inst(instruction):
     signals = {"copper-plate": 9, "signal-F": 2, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
@@ -265,7 +209,7 @@ def div_signals(instruction):
 
 
 @tag("POW")
-def pow_signals(instruction):
+def pow_inst(instruction):
     signals = {"copper-plate": 9, "signal-F": 3, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
@@ -279,7 +223,7 @@ def pow_signals(instruction):
 
 
 @tag("MOD")
-def mod_signals(instruction):
+def mod_inst(instruction):
     signals = {"copper-plate": 9, "signal-F": 4, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
@@ -293,7 +237,7 @@ def mod_signals(instruction):
 
 
 @tag("ASR")
-def asr_signals(instruction):
+def asr_inst(instruction):
     signals = {"copper-plate": 9, "signal-F": 5, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
@@ -307,7 +251,7 @@ def asr_signals(instruction):
 
 
 @tag("LSL")
-def lsl_signals(instruction):
+def lsl_inst(instruction):
     signals = {"copper-plate": 9, "signal-F": 6, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
@@ -321,7 +265,7 @@ def lsl_signals(instruction):
 
 
 @tag("LSR")
-def mov_signals(instruction):
+def lsr_inst(instruction):
     signals = {"copper-plate": 9, "signal-F": 7, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
@@ -333,7 +277,7 @@ def mov_signals(instruction):
 
 
 @tag("ROL")
-def rol_signals(instruction):
+def rol_inst(instruction):
     signals = {"copper-plate": 9, "signal-F": 8, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
@@ -345,7 +289,7 @@ def rol_signals(instruction):
 
 
 @tag("ROR")
-def ror_signals(instruction):
+def ror_inst(instruction):
     signals = {"copper-plate": 9, "signal-F": 9, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
@@ -357,7 +301,7 @@ def ror_signals(instruction):
 
 
 @tag("NOT")
-def not_signals(instruction):
+def not_inst(instruction):
     signals = {"copper-plate": 9, "signal-F": 10, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
@@ -369,7 +313,7 @@ def not_signals(instruction):
 
 
 @tag("AND")
-def and_signals(instruction):
+def and_inst(instruction):
     signals = {"copper-plate": 9, "signal-F": 11, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
@@ -383,7 +327,7 @@ def and_signals(instruction):
 
 
 @tag("OR")
-def or_signals(instruction):
+def or_inst(instruction):
     signals = {"copper-plate": 9, "signal-F": 12, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
@@ -397,7 +341,7 @@ def or_signals(instruction):
 
 
 @tag("XOR")
-def xor_signals(instruction):
+def xor_inst(instruction):
     signals = {"copper-plate": 9, "signal-F": 13, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
@@ -410,13 +354,12 @@ def xor_signals(instruction):
     return signals
 
 
-def iterate_operands(inst, sig_dict, encoding):
+def iterate_operands(inst: Instruction, sig_dict, encoding):
     operands = split_instruction(inst.operands)
     if len(operands) != len(encoding):
         show_syntax_error("Incorrect number of opcodes, was {} but expected {}".format(len(operands), len(encoding)),
                           inst.raw_instruction, inst.line)
     for i, e in enumerate(operands):
-        signal_group = {}
         add_signals(sig_dict, encoding[i], e, inst.raw_instruction, inst.line)
 
 
@@ -496,25 +439,3 @@ def show_syntax_error(msg, raw_line_str, line_number, index=-1):
     error_msg += "SyntaxError: " + msg
     print(error_msg, file=sys.stderr)
     exit(0)
-
-
-# test
-if __name__ == "__main__":
-    delete_this_eventually = [['MOV', 'R0', '1'],
-                              ['CMP', 'R0', "R2"],
-                              ['MOV', 'R1', '0'],
-                              ['HLT'],
-                              ['ADD', 'R2', 'R0', 'R1'],
-                              ['ADD', 'R1', 'R2', "-0x1"],
-                              ['LOAD', 'R2', '[R3, 5]'],
-                              ["B", 0],
-                              ["B", "R4"],
-                              ["BN", "R4"],
-                              ["ALU", "R2", "R0", "R1", "1", "0x1", "0b1", "0", 0]
-                              ]
-
-    signals2 = inst_to_signals(delete_this_eventually)
-
-    print(signals2)
-
-
