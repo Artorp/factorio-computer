@@ -1,0 +1,25 @@
+from blueprint_generator import Blueprint
+import blueprint_import_export
+
+import json
+
+bp = Blueprint()
+
+bp.generate_rom_entities(4)
+
+json_stf = json.dumps(bp.json_dict)
+
+
+# create
+
+compressed_bp = blueprint_import_export.bp_compress(json_stf)
+
+done_bp = blueprint_import_export.bp_encode_base64(compressed_bp)
+
+print(done_bp)
+
+# import (to json)
+
+large_bp = "0eJytlttuozAQhl8l8u0uK045VdqLfYCqUaW9WlXIAScZCWxkTHajiHffsUMaSHESl160gmH85WeOHMk6r1kpgSvyNDmSnK5ZjldkJcVW0mLiTVavL8/k+4SAYoV+cjmAxj2TFQiO9lkch/Mg8hcLXzungldo/XMkFWw5zQ1dHUqmEXuQqkYbOnJaGNPJy1uRRp/mGfuH1gBvHAGvPUDoDnjpASJ3wHMPEDdveMe4AgWsjYi5OyS8LtZM6tfsQpTgzPtLc4MuRYXnTHyPROO8GK0HfRE0Rto1K/wEyx9GRQ6o6I6s+HFWeAc1fRwV3X7BmTvJJmreRRVI8XJalMOxCs4sXZ0EG4WzVHtUxiUw/7eSMd6rFsh0pejeSkGmNajW0rw1w5IWj0sKRygKrxWFVkXLjiIqQe0KpiD1UlGsgVMl5HC8wh/T9zziRQbypK7NIMpVUuTJmu3oHoQ0By/4BJ9ncHmbDchKJQMdbeZbRyFIwT0hGWljUilqhqROnyiZpK0G8k2fErUqa0duY4+2ZNm47Btf14r0G1s8z7/6HswRsayYpjx8rMypOiehKKk0hYIPfxLX+C0/hq8TupMlGAgxmizVP3+A+KFBbiStuwnOJXevP3xbc4S2ZG4gV7i3rev5Og2pKLHee4moTSssR+5qTFIXF4zb3KEV9oktHllhsTvsdw/md2BTd9gvq7IZFtb4iTKqgLufHxlLIcO6uVO/gX28Wyu4RX/NbP+yeXRzDdgTyvAj+qB2wLcttTwkJr3JRooiAY5EdFeyZs4bw22cDS8YtIW3PgEWw/WBf/8BfbvjPg=="
+
+print(blueprint_import_export.bp_decompress(blueprint_import_export.bp_decode_base64(large_bp)))
