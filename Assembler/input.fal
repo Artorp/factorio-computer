@@ -3,12 +3,10 @@
 #def f_0 0
 #def f_1 1
 #def mem_start 2
-#def end_index 128
-
+#def end_index 64
 
 ; setup
 ; insert the two first numbers into memory
-beg:
 MOV R3, 0 ; mem index
 MOV R0, 0 ; 1st number
 STORE R0, [0]

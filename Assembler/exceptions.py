@@ -4,3 +4,7 @@
 class AsmSyntaxError(Exception):
     pass
 
+
+class ParseOperandError(Exception):
+    pass
+

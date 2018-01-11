@@ -55,7 +55,7 @@
     "imm_or_reg_0_imm": {"signal-A":"var"}
   },
   "ADD": {
-    "control": {"copper-plate": 9, "signal-red": 1, "signal-2":1, "signal-3":1},
+    "control": {"copper-plate": 9, "signal-red": 1, "signal-2": 1, "signal-3": 1},
     "format": ["reg_0", "reg_1", "imm_or_reg_0"],
     "0": {"signal-U": "var"},
     "1": {"signal-K": 1, "signal-0": "var"},
@@ -63,7 +63,7 @@
     "imm_or_reg_0_imm": {"signal-B":"var"}
   },
   "SUB": {
-    "control": {"copper-plate": 9, "signal-red": 1, "signal-2":1, "signal-3":-1},
+    "control": {"copper-plate": 9, "signal-red": 1, "signal-2":1, "signal-3": -1},
     "format": ["reg_0", "reg_1", "imm_or_reg_0"],
     "0": {"signal-U": "var"},
     "1": {"signal-K": 1, "signal-0": "var"},

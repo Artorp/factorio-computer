@@ -2,8 +2,9 @@
 
 
 class Instruction():
-    def __init__(self, opcode, operands, line):
+    def __init__(self, opcode, operands, line, raw_instruction):
         self.opcode = opcode
         self.operands = operands
         self.line = line
+        self.raw_instruction = raw_instruction
 

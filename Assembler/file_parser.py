@@ -53,14 +53,11 @@ def parse_file(program_filename):
             
             # parse operands
 
-
             opcode = words[0]
 
-            operands = " ".join(words[1:]).split(",")  # all operands are comma separated
-            if len(operands) == 1 and operands[0] == "":
-                operands.pop()
+            operands = " ".join(words[1:])
 
-            instruction = Instruction(opcode, operands, line_n)
+            instruction = Instruction(opcode, operands, line_n, line)
 
             instructions.append(instruction)
 
@@ -88,10 +85,11 @@ def parse_file(program_filename):
 
     unused_labels = set(labels.keys())
     for instruction in instructions:
-        for i, e in enumerate(instruction.operands):
+        for i, e in enumerate(instruction.operands.split()):
             if e in labels:
                 unused_labels.remove(e)
-                instruction.operands[i] = labels[e]
+                assert isinstance(instruction.operands, str)
+                instruction.operands = instruction.operands.replace(e, str(labels[e]))
 
     if len(unused_labels) > 0:
         print("Warning: Unused label(s), {}".format(", ".join(unused_labels)), file=sys.stderr)

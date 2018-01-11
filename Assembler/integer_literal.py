@@ -1,0 +1,33 @@
+# utility function for literals ("-2", "0x42", "-0b42" etc)
+
+
+def is_number_or_literal(n):
+    prefix = str(n).lower()
+    if prefix.startswith("0x") or prefix.startswith("-0x"):
+        try:
+            int(n, base=16)
+            return True
+        except ValueError:
+            return False
+    elif prefix.startswith("0b") or prefix.startswith("-0b"):
+        try:
+            int(n, base=2)
+            return True
+        except ValueError:
+            return False
+    else:
+        try:
+            int(n)
+            return True
+        except ValueError:
+            return False
+
+
+def to_number_or_literal(n):
+    prefix = str(n).lower()
+    if prefix.startswith("0x") or prefix.startswith("-0x"):
+        return int(n, base=16)
+    elif prefix.startswith("0b") or prefix.startswith("-0b"):
+        return int(n, base=2)
+    else:
+        return int(n)

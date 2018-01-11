@@ -5,6 +5,7 @@
 
 import sys
 import os
+import time
 import constants
 from file_parser import parse_file
 from insr_to_signals import inst_to_signals
@@ -16,6 +17,9 @@ import json
 def main():
     file_in = constants.DEFAULT_INPUT_FILE
     file_out = constants.DEFAULT_OUTPUT_FILE
+
+    print(file_in)
+    time.sleep(0.001)  # If print to stderr, let stdout output first
 
     instructions = parse_file(file_in)
     
@@ -39,6 +43,8 @@ def main():
     # paste to clipboard
     # TODO: Detect OS type, currently only on Windows
     os.system("echo " + output + " | clip")
+
+    print("Done. Blueprint string on clipboard.")
 
 
 if __name__ == "__main__":
