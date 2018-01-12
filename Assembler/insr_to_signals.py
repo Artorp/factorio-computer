@@ -23,7 +23,7 @@ def inst_to_signals(instructions):
         opcode = inst.opcode
         if opcode.upper() not in opcodes:
             show_syntax_error("unknown opcode {}".format(opcode), inst.raw_instruction, inst.line)
-        instruction_signals = opcodes[opcode](inst)
+        instruction_signals = opcodes[opcode.upper()](inst)
 
         const_comb_signals.append(instruction_signals)
 

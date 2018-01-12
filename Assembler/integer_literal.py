@@ -31,3 +31,9 @@ def to_number_or_literal(n):
         return int(n, base=2)
     else:
         return int(n)
+
+
+def verify_number_range(n):
+    int32_min = -2**31
+    int32_max = 2**31 - 1
+    return int32_min <= n <= int32_max

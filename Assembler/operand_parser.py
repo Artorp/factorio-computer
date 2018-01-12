@@ -1,6 +1,6 @@
 from enum import Enum, auto
 from registers import register_dict
-from integer_literal import is_number_or_literal, to_number_or_literal
+from integer_literal import is_number_or_literal, to_number_or_literal, verify_number_range
 from exceptions import ParseOperandError
 
 
@@ -58,6 +58,11 @@ def parse_immediate(operand, start_index):
             "index": i
         })
     n = to_number_or_literal(unparsed_n)
+    if not verify_number_range(n):
+        raise ParseOperandError({
+            "msg": "Immediate number outside signed 32-bit range. Must be within -2^31..2^31 -1. Was: " + str(n),
+            "index": i
+        })
     i = skip_whitespace(operand, j)
     if i < len(operand) and operand[i] == ",":
         i += 1
