@@ -81,7 +81,7 @@ class Blueprint:
             self.prev_index_entity = arith
 
             entities_connect(arith, lamp, "red", "1", "1")
-            entities_connect(lamp, const_comb, "red", "1", "1")
+            entities_connect(lamp, decider, "red", "1", "1")
             entities_connect(const_comb, decider, "red", "1", "1")
 
             # PC circuit
