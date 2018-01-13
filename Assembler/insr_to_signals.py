@@ -157,6 +157,26 @@ def sub_inst(instruction):
     return signals
 
 
+@tag("INC")
+def inc_inst(instruction):
+    signals = {"copper-plate": 9, "signal-red": 1, "signal-2": 1, "signal-3": 1, "signal-B": 1}
+    encoding = [
+        [OperandType.REGISTER, {"signal-U": "var", "signal-K": 1, "signal-0": "var"}]
+    ]
+    iterate_operands(instruction, signals, encoding)
+    return signals
+
+
+@tag("DEC")
+def dec_inst(instruction):
+    signals = {"copper-plate": 9, "signal-red": 1, "signal-2": 1, "signal-3": 1, "signal-B": -1}
+    encoding = [
+        [OperandType.REGISTER, {"signal-U": "var", "signal-K": 1, "signal-0": "var"}]
+    ]
+    iterate_operands(instruction, signals, encoding)
+    return signals
+
+
 @tag("CMP")
 def cmp_inst(instruction):
     signals = {"copper-plate": 9, "signal-2": 1, "signal-3": -1}
