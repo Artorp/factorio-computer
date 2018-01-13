@@ -62,11 +62,11 @@ def parse_file(program_filename):
 
     unused_labels = set(labels.keys())
     for instruction in instructions:
-        for e in instruction.operands.split():
-            if e in labels:
-                unused_labels.remove(e)
-                assert isinstance(instruction.operands, str)
-                instruction.operands = instruction.operands.replace(e, str(labels[e]))
+        e = instruction.operands
+        for label in labels:
+            if e.find(label) != -1:
+                unused_labels.discard(label)
+                instruction.operands = e.replace(label, str(labels[label]))
 
     if len(unused_labels) > 0:
         print("Warning: Unused label(s), {}".format(", ".join(unused_labels)), file=sys.stderr)

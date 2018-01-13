@@ -1,0 +1,90 @@
+; procedure demo
+; implements a procedure by using a stack
+
+#def stack_reg R7 ; R31 is the last register
+#def stack_adr 10  ; Use adr 10 and down for the stack
+
+MOV stack_reg, stack_adr
+
+; PUSH Rx
+; STORE Rx, [stack_reg]
+; ADD stack_reg, stack_reg, 1
+
+; POP Rx
+; SUB stack_reg, stack_reg, 1
+; LOAD Rx, [stack_reg]
+
+; Procedure: R0 = 2*R0 + 5
+; Registers in use: R0, R1
+; Recursive: No
+B end_mult
+mult:
+MUL R0, R0, 2
+ADD R0, R0, 5
+; Pop last element on stack, branch
+SUB stack_reg, stack_reg, 1
+NOP
+LOAD R1, [stack_reg]
+NOP
+B R1
+end_mult:
+
+; use the above procedure on values in 0-7 in memory
+; fill 0-7 with 1-8
+
+;MOV R0, 0
+;MOV R1, 1
+;loop:
+;STORE R1, [R0]
+;ADD R0, R0, 1 ; inc adr
+;ADD R1, R0, 1 ; inc n
+;CMP R0, 8     ; adr - 8
+;BN loop   ; while adr < 8
+
+STORE 1, [0]
+STORE 2, [1]
+STORE 3, [2]
+STORE 4, [3]
+STORE 5, [4]
+STORE 6, [5]
+STORE 7, [6]
+STORE 8, [7]
+
+; use mult procedure on all values
+
+;for i in range(8):
+;mult(adr[i])
+
+; R0: adr
+; R1: data
+
+MOV R0, 0
+
+loop2:
+LOAD R1, [R0]
+; call procedure
+; push R0, discard R1 as it will be assigned new value
+STORE R0, [stack_reg] ; BUG, saves 10 to stack pointer, not 0
+; CP:2, L:1, 1:0, K:1, 0:7 (stack_reg index)
+ADD stack_reg, stack_reg, 1
+; move parameters to R0=data
+MOV R0, R1 ; R0 = data
+; push PC return address
+STORE call_return, [stack_reg]
+ADD stack_reg, stack_reg, 1
+B mult ; call the procedure
+call_return:
+; do return actions
+MOV R1, R0 ; R1 = result from mult precedure
+; pop R0=adr
+SUB stack_reg, stack_reg, 1
+LOAD R0, [stack_reg]
+; done return actions, store in RAM
+STORE R1, [R0]
+; check if next iteration
+ADD R0, R0, 1
+CMP R0, 8
+BN loop2 ; if adr < 8, loop
+
+; Done!
+

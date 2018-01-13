@@ -183,7 +183,7 @@ def add_inst(instruction):
 
 @tag("MUL")
 def mul_inst(instruction):
-    signals = {"copper-plate": 9, "signal-F": 1, "signal-2": 1, "signal-3": 1}
+    signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 1, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
         [OperandType.OR_REGISTER_IMMEDIATE,
@@ -197,7 +197,7 @@ def mul_inst(instruction):
 
 @tag("DIV")
 def div_inst(instruction):
-    signals = {"copper-plate": 9, "signal-F": 2, "signal-2": 1, "signal-3": 1}
+    signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 2, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
         [OperandType.OR_REGISTER_IMMEDIATE,
@@ -211,7 +211,7 @@ def div_inst(instruction):
 
 @tag("POW")
 def pow_inst(instruction):
-    signals = {"copper-plate": 9, "signal-F": 3, "signal-2": 1, "signal-3": 1}
+    signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 3, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
         [OperandType.OR_REGISTER_IMMEDIATE,
@@ -225,7 +225,7 @@ def pow_inst(instruction):
 
 @tag("MOD")
 def mod_inst(instruction):
-    signals = {"copper-plate": 9, "signal-F": 4, "signal-2": 1, "signal-3": 1}
+    signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 4, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
         [OperandType.OR_REGISTER_IMMEDIATE,
@@ -239,7 +239,7 @@ def mod_inst(instruction):
 
 @tag("ASR")
 def asr_inst(instruction):
-    signals = {"copper-plate": 9, "signal-F": 5, "signal-2": 1, "signal-3": 1}
+    signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 5, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
         [OperandType.OR_REGISTER_IMMEDIATE,
@@ -253,7 +253,7 @@ def asr_inst(instruction):
 
 @tag("LSL")
 def lsl_inst(instruction):
-    signals = {"copper-plate": 9, "signal-F": 6, "signal-2": 1, "signal-3": 1}
+    signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 6, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
         [OperandType.OR_REGISTER_IMMEDIATE,
@@ -267,7 +267,7 @@ def lsl_inst(instruction):
 
 @tag("LSR")
 def lsr_inst(instruction):
-    signals = {"copper-plate": 9, "signal-F": 7, "signal-2": 1, "signal-3": 1}
+    signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 7, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
         [OperandType.OR_REGISTER_IMMEDIATE,
@@ -279,7 +279,7 @@ def lsr_inst(instruction):
 
 @tag("ROL")
 def rol_inst(instruction):
-    signals = {"copper-plate": 9, "signal-F": 8, "signal-2": 1, "signal-3": 1}
+    signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 8, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
         [OperandType.OR_REGISTER_IMMEDIATE,
@@ -291,7 +291,7 @@ def rol_inst(instruction):
 
 @tag("ROR")
 def ror_inst(instruction):
-    signals = {"copper-plate": 9, "signal-F": 9, "signal-2": 1, "signal-3": 1}
+    signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 9, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
         [OperandType.OR_REGISTER_IMMEDIATE,
@@ -303,7 +303,7 @@ def ror_inst(instruction):
 
 @tag("NOT")
 def not_inst(instruction):
-    signals = {"copper-plate": 9, "signal-F": 10, "signal-2": 1, "signal-3": 1}
+    signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 10, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
         [OperandType.OR_REGISTER_IMMEDIATE,
@@ -315,7 +315,7 @@ def not_inst(instruction):
 
 @tag("AND")
 def and_inst(instruction):
-    signals = {"copper-plate": 9, "signal-F": 11, "signal-2": 1, "signal-3": 1}
+    signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 11, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
         [OperandType.OR_REGISTER_IMMEDIATE,
@@ -329,7 +329,7 @@ def and_inst(instruction):
 
 @tag("OR")
 def or_inst(instruction):
-    signals = {"copper-plate": 9, "signal-F": 12, "signal-2": 1, "signal-3": 1}
+    signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 12, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
         [OperandType.OR_REGISTER_IMMEDIATE,
@@ -343,7 +343,7 @@ def or_inst(instruction):
 
 @tag("XOR")
 def xor_inst(instruction):
-    signals = {"copper-plate": 9, "signal-F": 13, "signal-2": 1, "signal-3": 1}
+    signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 13, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
         [OperandType.OR_REGISTER_IMMEDIATE,
