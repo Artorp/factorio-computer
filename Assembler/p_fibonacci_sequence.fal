@@ -19,6 +19,6 @@ ADD R0, R1, R2 ; 3rd number
 MOV R2, R1
 MOV R1, R0
 STORE R0, [R3, mem_start]
-ADD R3, R3, 1
+INC R3
 CMP R3, end_index
 BN fib_loop

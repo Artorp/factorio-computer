@@ -2,7 +2,7 @@
 
 MOV R0, start ; R0 = start
 loop:
-ADD R0, R0, 8 ; Add two to r0
+ADD R0, R0, 8
 CMP R0, 100
 BN loop
 MOV R1, R0

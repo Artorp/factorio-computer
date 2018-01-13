@@ -8,10 +8,10 @@ MOV stack_reg, stack_adr
 
 ; PUSH Rx
 ; STORE Rx, [stack_reg]
-; ADD stack_reg, stack_reg, 1
+; INC stack_reg
 
 ; POP Rx
-; SUB stack_reg, stack_reg, 1
+; DEC stack_reg
 ; LOAD Rx, [stack_reg]
 
 ; Procedure: R0 = 2*R0 + 5
@@ -22,7 +22,7 @@ mult:
 MUL R0, R0, 2
 ADD R0, R0, 5
 ; Pop last element on stack, branch
-SUB stack_reg, stack_reg, 1
+DEC stack_reg
 NOP
 LOAD R1, [stack_reg]
 NOP
@@ -66,18 +66,18 @@ LOAD R1, [R0]
 ; push R0, discard R1 as it will be assigned new value
 STORE R0, [stack_reg] ; BUG, saves 10 to stack pointer, not 0
 ; CP:2, L:1, 1:0, K:1, 0:7 (stack_reg index)
-ADD stack_reg, stack_reg, 1
+INC stack_reg
 ; move parameters to R0=data
 MOV R0, R1 ; R0 = data
 ; push PC return address
 STORE call_return, [stack_reg]
-ADD stack_reg, stack_reg, 1
+INC stack_reg
 B mult ; call the procedure
 call_return:
 ; do return actions
 MOV R1, R0 ; R1 = result from mult precedure
 ; pop R0=adr
-SUB stack_reg, stack_reg, 1
+DEC stack_reg
 LOAD R0, [stack_reg]
 ; done return actions, store in RAM
 STORE R1, [R0]
