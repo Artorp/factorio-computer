@@ -42,10 +42,10 @@ def main():
 
     # paste to clipboard, clip on Windows
     if platform.system() == "Windows":
-        os.system("echo " + output + " | clip")
+        os.system("clip < " + file_out)
         print("Done. Blueprint string on clipboard.")
     else:
-        print("Done. Blueprint string in " + file_out)
+        print("Done. Blueprint string saved as " + file_out)
 
 
 if __name__ == "__main__":
