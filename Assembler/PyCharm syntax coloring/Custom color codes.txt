@@ -1,0 +1,46 @@
+<option name="CUSTOM_KEYWORD1_ATTRIBUTES">
+  <value>
+	<option name="FOREGROUND" value="f92772" />
+  </value>
+</option>
+<option name="CUSTOM_KEYWORD2_ATTRIBUTES">
+  <value>
+	<option name="FOREGROUND" value="a7e22e" />
+  </value>
+</option>
+<option name="CUSTOM_KEYWORD3_ATTRIBUTES">
+  <value>
+	<option name="FOREGROUND" value="fe9720" />
+  </value>
+</option>
+<option name="CUSTOM_KEYWORD4_ATTRIBUTES">
+  <value>
+	<option name="FOREGROUND" value="f92772" />
+  </value>
+</option>
+<option name="CUSTOM_LINE_COMMENT_ATTRIBUTES">
+  <value>
+	<option name="FOREGROUND" value="afac99" />
+  </value>
+</option>
+<option name="CUSTOM_MULTI_LINE_COMMENT_ATTRIBUTES">
+  <value>
+	<option name="FOREGROUND" value="afac96" />
+	<option name="FONT_TYPE" value="2" />
+  </value>
+</option>
+<option name="CUSTOM_NUMBER_ATTRIBUTES">
+  <value>
+	<option name="FOREGROUND" value="ae81ff" />
+  </value>
+</option>
+<option name="CUSTOM_STRING_ATTRIBUTES">
+  <value>
+	<option name="FOREGROUND" value="e6da74" />
+  </value>
+</option>
+<option name="CUSTOM_VALID_STRING_ESCAPE_ATTRIBUTES">
+  <value>
+	<option name="FOREGROUND" value="ae81ff" />
+  </value>
+</option>
