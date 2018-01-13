@@ -1,0 +1,39 @@
+; Stack example
+
+#def stack_reg R30
+#def stack_adr 10 ; Use adr 10 and down for the stack
+
+MOV stack_reg, stack_adr
+
+; PUSH Rx
+; STORE Rx, [stack_reg]
+; ADD stack_reg, stack_reg, 1
+
+; POP Rx
+; SUB stack_reg, stack_reg, 1
+; LOAD Rx, [stack_reg]
+
+; some code
+
+MOV R1, 5
+MOV R2, 6
+
+; Push R1, R2
+
+STORE R1, [stack_reg]
+ADD stack_reg, stack_reg, 1
+STORE R2, [stack_reg]
+ADD stack_reg, stack_reg, 1
+
+; some other code
+
+MOV R1, 100
+MOV R2, 101
+
+; Pop R2, R1
+
+SUB stack_reg, stack_reg, 1
+LOAD R2, [stack_reg]
+SUB stack_reg, stack_reg, 1
+LOAD R1, [stack_reg]
+

@@ -1,0 +1,16 @@
+; Loading from RAM
+
+#def imm_offset 2
+
+MOV R0, 10
+MOV R1, 20
+MOV R2, 30
+MOV R3, 4 ; register adr
+
+STORE R0, [imm_offset] ; 2
+STORE R1, [R3] ; 4
+STORE R2, [R3, imm_offset] ; 2 + 4 = 6
+
+LOAD R4, [imm_offset]
+LOAD R5, [R3]
+LOAD R6, [R3, imm_offset]

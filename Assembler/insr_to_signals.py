@@ -56,7 +56,7 @@ def store_inst(instruction):
 def store_inst(instruction):
     signals = {"copper-plate": 4}
     encoding = [
-        [OperandType.REGISTER, {"signal-L": 1, "signal-1": "var"}],
+        [OperandType.REGISTER, {"signal-U": "var"}],
         [OperandType.OR_REGISTER_IMMEDIATE_BOTH,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}]
     ]
