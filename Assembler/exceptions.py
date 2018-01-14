@@ -8,3 +8,6 @@ class AsmSyntaxError(Exception):
 class ParseOperandError(Exception):
     pass
 
+
+class ParseFileError(Exception):
+    pass
