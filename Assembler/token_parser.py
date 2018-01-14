@@ -1,7 +1,9 @@
 # Takes in a list of list of tokens, and pre-processes them into a list of instructions
 
-from tokenizer import Token
+from tokenizer import Token, TokenType
 from macro import Macro
+import label as lb
+from instruction import Instruction
 from macro_dependencies_checker import check_dependencies
 from exceptions import show_syntax_error
 
@@ -133,7 +135,74 @@ def token_parser(tokens):
     #     print()
 
     # Handle definitions
-    # TODO
+    definitions = dict()
+    for line in tokens:
+        # replace any definitions
+        for t in line:
+            if t.text in definitions:
+                t.text = definitions[t.text]
+
+        # add new definitions
+        if line[0].text.lower() == "#def":
+            for t in line:
+                if t.t_type == TokenType.DELIMITER:
+                    show_syntax_error("Invalid symbol `{}` in definition".format(t.text),
+                                      t.file_raw_text, t.file_number, t.str_col)
+            if len(line) != 3:
+                show_syntax_error("A definition must have a declaration, a keyword, and a replacement",
+                                  line[0].file_raw_text, line[0].file_number, line[0].str_col)
+            definitions[line[1].text] = line[2].text
+
+    # Drop any definitions
+    new_tokens = list()
+    for line in tokens:
+        if line[0].text.lower() == "#def":
+            continue
+        new_tokens.append(line)
+    tokens = new_tokens
+
+    # Create instructions and handle labels
+    instructions = list()
+
+    symbolic_labels = dict()
+    numeric_labels = list()  # sorted by PC address
+
+    for line in tokens:
+        # check for labels
+        found_label = True
+        while found_label:
+            found_label = False
+            for i, t in enumerate(line):
+                if t.t_type == TokenType.LABEL_DELIMITER:
+                    if i != 1:
+                        show_syntax_error("Misplaced label colon", t.file_raw_text, t.file_number, t.str_col)
+                    found_label = True
+                    label = line[0]
+                    label_target = len(instructions)  # Target is absolute signed PC address
+                    if lb.is_numeric_label(label.text):
+                        label_num = lb.NumericLabel(int(label.text), label_target)
+                        numeric_labels.append(label_num)
+                    else:
+                        if label.text in symbolic_labels:
+                            error_msg = "Label ´{}´ previously defined".format(label)
+                            show_syntax_error(error_msg, label.file_raw_text, label.file_number, label.str_col)
+                        symbolic_labels[label.text] = label_target
+                    line = line[2:]
+        if len(line) == 0:
+            continue
+
+        # create instruction object
+        opcode = line[0]
+        operands_readable = [_.text for _ in line[1:]]
+        operands = " ".join(operands_readable)  # TODO: send tokens instead, to simplify operand parsing
+        instruction = Instruction(opcode.text, operands, opcode.file_number, opcode.file_raw_text)
+        instructions.append(instruction)
+
+    for inst in instructions:
+        print(inst.opcode, inst.operands)
+
+    
+
 
     return None
 
