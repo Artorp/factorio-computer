@@ -1,5 +1,6 @@
 # custom exceptions
 
+import sys
 
 class AsmSyntaxError(Exception):
     pass
