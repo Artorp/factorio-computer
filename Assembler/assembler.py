@@ -4,9 +4,11 @@
 # output: output.txt
 
 import os
+import sys
 import platform
 import time
 import constants
+from tokenizer import tokenize_file
 from instruction import Instruction
 from file_parser import parse_file
 from insr_to_signals import inst_to_signals
@@ -21,7 +23,16 @@ def main():
     file_out = constants.DEFAULT_OUTPUT_FILE
 
     print(file_in)
-    time.sleep(0.001)  # If print to stderr, let stdout output first
+    time.sleep(0.005)  # If print to stderr, let stdout output first
+
+    lines_of_tokens = tokenize_file(file_in)
+
+    for line in lines_of_tokens:
+        for token in line:
+            print(token.text, "", end="")
+        print()
+
+    sys.exit(0)
 
     instructions = parse_file(file_in)
 

@@ -1,26 +1,35 @@
-; labels demo
+; Fibonacci number generator
 
-; loop up to number (exclusive)
-#def upto 5
-MOV R0, 0 ; index
-loop:
-; Statement(s), do something within the loop
+#def f_0 0
+#def f_1 1
+#def mem_start 2
+#def end_index 64
+
+#macro push 1 ; name then number of parameters
+STORE $0, [stack_reg]
+INC stack_reg
+#endm
+
+push R4
+push R5
+
+pop R5
+pop R4
+
+; setup
+; insert the two first numbers into memory
+MOV R3, 0 ; mem index
+MOV R0, 0 ; 1st number
+STORE R0, [0]
+MOV R0, 1 ; 2nd number
+STORE R0, [1]
+MOV R1, f_1 ; prev
+MOV R2, f_0 ; 2nd prev
+fib_loop:
+ADD R0, R1, R2 ; 3rd number
+MOV R2, R1
 MOV R1, R0
-; End statement(s), evaluate loop condition
-INC R0
-CMP R0, upto
-BN loop
-; Done, carry on
-
-; local (numeric) labels, one digit
-1: MOV R2, 42
-TST 0
-BN 1b ; branch back to previous 1-label
-B 2f  ; branch forward to next 2-label
-1: TST -1 ; labels can be redefined
-2: NOP ; define a 2-label
-BN 2f  ; branch forward to next 2-label (if negative)
-B 1b   ; branch back to previous 1-label
-2: MOV R3, 12345
-
-; Done
+STORE R0, [R3, mem_start]
+INC R3
+CMP R3, end_index
+BN fib_loop

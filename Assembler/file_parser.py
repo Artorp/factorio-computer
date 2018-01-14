@@ -6,12 +6,14 @@ import re
 from instruction import Instruction
 from exceptions import AsmSyntaxError, ParseFileError, show_syntax_error
 import label as l
+from macro import Macro
 
 
 def parse_file(program_filename):
     instructions = list()
     
     definitions = dict()
+    macros = dict()
     symbolic_labels = dict()
     numeric_labels = list()  # sorted by PC address
 

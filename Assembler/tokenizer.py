@@ -21,9 +21,10 @@ class Token:
         self.text = text
         self.t_type = t_type
         self.file_number = file_number
-        self.file_raw_text = file_raw_text
-        self.file_index_start = file_index_start
+        self.file_raw_text = file_raw_text.strip("\n")
+        self.str_col = file_index_start
         self.tokens = tokens
+        self.original_token = None  # If copied from a macro, link to original token here
 
 
 def tokenize_file(filename):
@@ -50,12 +51,12 @@ def tokenize_file(filename):
                         token_i = start_token
                         start_token = -1
 
-                        token = Token(token_txt, token_type, i, line, token_i, line_of_tokens)
+                        token = Token(token_txt, token_type, i + 1, line, token_i, line_of_tokens)
                         line_of_tokens.append(token)
                     if c in delimiters:
                         token_txt = c
                         token_type = TokenType.DELIMITER
-                        token = Token(token_txt, token_type, i, line, index, line_of_tokens)
+                        token = Token(token_txt, token_type, i + 1, line, index, line_of_tokens)
                         line_of_tokens.append(token)
                     elif c == ":":
                         found_opcode = False
@@ -69,7 +70,7 @@ def tokenize_file(filename):
                         line_of_tokens[-1].t_type = TokenType.LABEL
                         token_type = TokenType.LABEL_DELIMITER
 
-                        token = Token(c, token_type, i, line, index, line_of_tokens)
+                        token = Token(c, token_type, i + 1, line, index, line_of_tokens)
                         line_of_tokens.append(token)
                 else:
                     # in a token, or beginning a new token
@@ -88,7 +89,7 @@ def _test():
     filename = "abcdefgh_testing_tokenizer.txt"
 
     test_lines = [
-        "#def end_index 64 ; some comment or some such",
+        "#def       end_index 64 ; some comment or some such",
         "STORE $0, [stack_reg]",
         "STORE R0, [R3, mem_start] ; another comment",
         "1: MOV R2, 42"
