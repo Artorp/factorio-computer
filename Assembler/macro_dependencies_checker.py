@@ -3,7 +3,6 @@
 import time
 from exceptions import show_syntax_error
 from tokenizer import tokenize_file
-from token_parser import token_parser
 
 
 class MacroWrapper:
@@ -53,7 +52,8 @@ def check_dependencies(macros, verbose=False):
                 names.append(d.macro.name)
             deps[name] = names
         for name in deps:
-            print(name + ": " + " ".join(deps[name]))
+            print(name + ": " + (" ".join(deps[name]) if len(deps[name]) > 1 else "None") + ", ", end="")
+        print()
         time.sleep(0.005)
 
     # Use DFS on all nodes to detect cyclic dependencies
@@ -98,11 +98,3 @@ def check_dependencies(macros, verbose=False):
                             node.num_active_deps -= 1
     if verbose:
         print("No cyclic dependencies found in macros")
-
-
-if __name__ == "__main__":
-    input_filename = "temp_test_cycle.fal"
-    tokens_lines_list = tokenize_file(input_filename)
-    ms = token_parser(tokens_lines_list)
-
-    check_dependencies(ms)

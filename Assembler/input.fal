@@ -10,6 +10,12 @@ STORE $0, [stack_reg]
 INC stack_reg
 #endm
 
+#macro pop 1
+DEC stack_reg
+LOAD $0, [stack_reg]
+#endm
+
+
 push R4
 push R5
 

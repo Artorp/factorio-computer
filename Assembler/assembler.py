@@ -9,6 +9,7 @@ import platform
 import time
 import constants
 from tokenizer import tokenize_file
+from token_parser import token_parser
 from instruction import Instruction
 from file_parser import parse_file
 from insr_to_signals import inst_to_signals
@@ -27,10 +28,7 @@ def main():
 
     lines_of_tokens = tokenize_file(file_in)
 
-    for line in lines_of_tokens:
-        for token in line:
-            print(token.text, "", end="")
-        print()
+    instructions = token_parser(lines_of_tokens)
 
     sys.exit(0)
 

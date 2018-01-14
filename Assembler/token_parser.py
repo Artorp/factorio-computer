@@ -2,6 +2,7 @@
 
 from tokenizer import Token
 from macro import Macro
+from macro_dependencies_checker import check_dependencies
 from exceptions import show_syntax_error
 
 
@@ -66,5 +67,78 @@ def token_parser(tokens):
                           active_macro.begin_token.file_number,
                           active_macro.begin_token.str_col)
 
-    # 2nd pass, build macro dependencies
-    return macros
+    # check for macro dependencies
+    check_dependencies(macros)
+
+    # replace all macros with the macro contents
+    # remove all macro definitions from tokens
+    # traverse macros in reverse order of declaration, to preserve indexes
+    for m_key in sorted(macros, key=lambda x: macros[x].token_line_begin, reverse=True):
+        m = macros[m_key]
+        assert isinstance(m, Macro)
+        # token_line_begin and token_line_end
+        tokens = tokens[:m.token_line_begin] + tokens[m.token_line_end:]
+        print(str(m.begin_token.file_number))
+
+    for m_key in macros:
+        m = macros[m_key]
+        print(m_key)
+        for line in m.lines_of_inst:
+            print([_.text for _ in line])
+
+    print("\n\nBefore replacements\n\n")
+
+    replacement_happened = True
+    while replacement_happened:
+        replacement_happened = False
+        # Traverse the tokens in reverse order, while keeping own index
+        index = len(tokens) - 1
+        while index >= 0:
+            line = tokens[index]
+            if line[0].text in macros.keys():
+                m = macros[line[0].text]
+                if len(line) != 1 + m.param_count:
+                    show_syntax_error("Invalid number of macro parameters. Macro expects {}, got {}"
+                                      .format(m.param_count, len(line) - 1),
+                                      line[0].file_raw_text,
+                                      line[0].file_number,
+                                      line[0].str_col
+                                      )
+                params = line[1:]
+                # Replace line with body of macro
+                line_replace = list()
+                for lines in m.lines_of_inst:
+                    line = list()
+                    for token in lines:
+                        new_token = token.copy()
+                        line.append(new_token)
+                        if new_token.text.startswith("$"):
+                            try:
+                                num = int(new_token.text[1:])
+                                if num > len(params) - 1 or num < 0:
+                                    raise ValueError
+                                new_token.text = params[num].text
+                            except ValueError:
+                                show_syntax_error("Parameter must have valid argument index",
+                                                  token.file_raw_text, token.file_number, token.str_col)
+                    line_replace.append(line)
+                tokens = tokens[:index] + line_replace + tokens[index + 1:]
+                replacement_happened = True
+            index -= 1
+
+    # print("\n\nAfterwards")
+    # for line in tokens:
+    #     for t in line:
+    #         print(t.text + " ", end="")
+    #     print()
+
+    # Handle definitions
+    # TODO
+
+    return None
+
+
+def tokens_have_macros(tokens, macros):
+    for line in tokens:
+        if line[0] in macros:
+            return True

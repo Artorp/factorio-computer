@@ -26,6 +26,11 @@ class Token:
         self.tokens = tokens
         self.original_token = None  # If copied from a macro, link to original token here
 
+    def copy(self):
+        new_token = Token(self.text, self.t_type, self.file_number, self.file_raw_text, self.str_col, self.tokens)
+        new_token.original_token = self
+        return new_token
+
 
 def tokenize_file(filename):
     tokenized_lines = list()
