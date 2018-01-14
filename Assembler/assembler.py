@@ -7,6 +7,7 @@ import os
 import platform
 import time
 import constants
+from instruction import Instruction
 from file_parser import parse_file
 from insr_to_signals import inst_to_signals
 from blueprint_generator import Blueprint
@@ -16,12 +17,20 @@ import json
 
 def main():
     file_in = constants.DEFAULT_INPUT_FILE
+    file_preprocessed = constants.DEFAULT_PREPROCESSED_FILE
     file_out = constants.DEFAULT_OUTPUT_FILE
 
     print(file_in)
     time.sleep(0.001)  # If print to stderr, let stdout output first
 
     instructions = parse_file(file_in)
+
+    with open(file_preprocessed, "w") as f:
+        for inst in instructions:
+            assert isinstance(inst, Instruction)
+            line = inst.opcode.ljust(5) + " "
+            line += inst.operands
+            f.write(line + "\n")
     
     combinator_signals = inst_to_signals(instructions)
 
