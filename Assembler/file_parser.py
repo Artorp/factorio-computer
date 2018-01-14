@@ -5,6 +5,7 @@ import sys
 import re
 from instruction import Instruction
 from exceptions import AsmSyntaxError, ParseFileError
+from insr_to_signals import show_syntax_error  # TODO: Move exception handling to another module
 import label as l
 
 
@@ -47,6 +48,10 @@ def parse_file(program_filename):
                     label_num = l.NumericLabel(int(label), target_label)
                     numeric_labels.append(label_num)
                 else:
+                    if label in symbolic_labels:
+                        error_msg = "Label ´{}´ previously defined".format(label)
+                        # TODO: Show which file line the label was defined in
+                        show_syntax_error(error_msg, line, line_n)
                     symbolic_labels[label] = target_label
                 remainder = words[0][label_index+1:]
                 if remainder == "":
@@ -79,7 +84,7 @@ def parse_file(program_filename):
         # TODO: Tokenize the input, makes this easier
         # [R5,1b] => 1b
         "".split()
-        tokens = re.split("([\s\\[\\],])", instruction.operands)
+        tokens = re.split("([\s\\[\\],])", instruction.operands)  # Split by: whitespace [ ] ,
         did_replace = False
         for j, token in enumerate(tokens):
             if len(token) == 2 and token[0].isdecimal() and token[1] in ["b", "f"]:
@@ -90,7 +95,6 @@ def parse_file(program_filename):
                     elif token[1] == "f":
                         target_label = l.find_forward_label(numeric_labels, int(token[0]), i)
                 except AsmSyntaxError as e:
-                    from insr_to_signals import show_syntax_error
                     show_syntax_error(e.args[0], instruction.raw_instruction, instruction.line)
                 tokens[j] = str(target_label.pc_adr)
                 target_label.was_referenced = True
