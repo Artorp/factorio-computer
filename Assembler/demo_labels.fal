@@ -1,14 +1,14 @@
 ; labels demo
 
 ; loop up to number (exclusive)
-#def upto 5
+#def upper_range 5
 MOV R0, 0 ; index
 loop:
 ; Statement(s), do something within the loop
 MOV R1, R0
 ; End statement(s), evaluate loop condition
 INC R0
-CMP R0, upto
+CMP R0, upper_range
 BN loop
 ; Done, carry on
 
