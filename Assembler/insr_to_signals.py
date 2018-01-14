@@ -3,7 +3,7 @@
 import sys
 
 from instruction import Instruction
-from exceptions import ParseOperandError
+from exceptions import ParseOperandError, show_syntax_error
 from operand_parser import OperandType, parse_operand
 import registers
 
@@ -451,12 +451,3 @@ def split_instruction(instruction):
             join_next = False
     return grouped
 
-
-def show_syntax_error(msg, raw_line_str, line_number, index=-1):
-    error_msg = "  Line {}\n".format(line_number)
-    error_msg += "    " + raw_line_str + "\n"
-    space_offset = 0 if index == -1 else index - 1
-    error_msg += " " * (4 + space_offset) + "^\n"
-    error_msg += "SyntaxError: " + msg
-    print(error_msg, file=sys.stderr)
-    exit(0)

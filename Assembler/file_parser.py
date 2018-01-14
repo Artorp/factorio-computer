@@ -4,8 +4,7 @@
 import sys
 import re
 from instruction import Instruction
-from exceptions import AsmSyntaxError, ParseFileError
-from insr_to_signals import show_syntax_error  # TODO: Move exception handling to another module
+from exceptions import AsmSyntaxError, ParseFileError, show_syntax_error
 import label as l
 
 
