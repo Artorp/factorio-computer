@@ -1,6 +1,6 @@
 ; Stack example
 
-#def stack_reg R30
+#def stack_reg R7
 #def stack_adr 10 ; Use adr 10 and down for the stack
 
 MOV stack_reg, stack_adr

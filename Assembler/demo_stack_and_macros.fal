@@ -1,0 +1,48 @@
+; `demo_stack.fal`, but with macros
+
+; macros makes it easier to program more complex functions
+
+#def stack_reg R7 ; R7 is on the display
+#def stack_adr 10 ; Use adr 10 and down for the stack
+
+MOV stack_reg, stack_adr
+
+#macro push 1
+STORE $0, [stack_reg]
+INC stack_reg
+#endm
+
+#macro pop 1
+DEC stack_reg
+LOAD $0, [stack_reg]
+#endm
+
+; when popping multiple registers, pop in reverse order
+
+#macro push2 2
+push $0
+push $1
+#endm
+
+#macro pop2 2
+pop $1 ; notice the order
+pop $0
+#endm
+
+; some code
+
+MOV R1, 5
+MOV R2, 6
+
+; Push R1, R2
+
+push2 R1 R2
+
+; some other code
+
+MOV R1, 100
+MOV R2, 101
+
+; Pop R2, R1
+
+pop2 R1 R2 ; macro was defined to pop in reverse order, so these are in the order they were pushed
