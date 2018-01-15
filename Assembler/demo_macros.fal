@@ -1,0 +1,88 @@
+; A demonstration of the macro keyword
+
+; define a macro, give it a name, and name the parameters
+#macro mov_one_to_reg_zero 0
+MOV R0, 1
+#endm
+
+; place the macro on its own line
+mov_one_to_reg_zero
+
+
+; a macro may also take parameters
+
+#macro swap 2
+XOR $0, $0, $1
+XOR $1, $1, $0
+XOR $0, $0, $1
+#endm
+
+
+MOV R0, 5
+MOV R1, 1000
+swap R0 R1 ; when used, the arguments are not separated by commas or other delimiters
+
+
+; a macro can accept opcodes
+
+#macro you_choose 1
+$0 R2, 10, 20
+#endm
+
+you_choose ADD ; ADD R2, 10, 20
+you_choose MUL ; MUL R2, 10, 20
+
+
+; or other macros
+
+#macro pass_it_on 2
+$0 $1
+#endm
+
+pass_it_on you_choose ASR
+
+
+; a macro can not contain symbolic (global) labels
+; use numeric labels instead
+
+;  #macro will_fail 0
+;  label: MOV R1, R2
+;  #endm
+
+#macro branching 0
+   TST -1
+   BN 1f
+2: TST 1
+   B 1f
+1: BN 2b
+#endm
+
+branching
+
+
+; #macro is preprocessed before the #def keyword
+; keep this in mind
+
+#def mover multiplier
+
+#macro mover 0
+MOV R0, 0
+#endm
+
+#macro multiplier 0
+MUL R0, 2, 2
+#endm
+
+mover ; will use the mover macro, as macros are are preprocessed before #def
+
+
+; macros can still contain definitions, macros are just unrolled first
+
+#def special_register R5
+
+#macro move_into_special_register 1
+MOV special_register, $0
+#endm
+
+move_into_special_register 100 ; MOV R5, 100
+
