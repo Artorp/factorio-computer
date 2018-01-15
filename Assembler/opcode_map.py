@@ -75,6 +75,24 @@ def bn_inst():
     return signals, encoding
 
 
+@tag("CMEM")
+def cmem_inst():
+    signals = {"copper-plate": 12, "signal-grey": 1, "signal-black": 1}
+    return signals, []
+
+
+@tag("CREG")
+def creg_inst():
+    signals = {"copper-plate": 12, "signal-grey": 1}
+    return signals, []
+
+
+@tag("CRAM")
+def creg_inst():
+    signals = {"copper-plate": 12, "signal-black": 1}
+    return signals, []
+
+
 @tag("ALU")
 def alu_inst():
     signals = {"copper-plate": 9}
