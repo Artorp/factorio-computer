@@ -3,6 +3,7 @@
 import os
 import sys
 import time
+import label as lb
 from enum import Enum, auto
 from exceptions import show_syntax_error
 
@@ -10,7 +11,8 @@ from exceptions import show_syntax_error
 class TokenType(Enum):
     UNKNOWN = auto()
     DELIMITER = auto()
-    LABEL = auto()
+    LABEL_SYMBOLIC = auto()
+    LABEL_NUMERIC = auto()
     LABEL_DELIMITER = auto()
     OPCODE = auto()
     OPERAND = auto()
@@ -68,11 +70,14 @@ def tokenize_file(filename):
                         if len(line_of_tokens) == 0:
                             # Missing label error
                             show_syntax_error("Missing label", line, i, index)
-                        if line_of_tokens[-1].t_type not in [TokenType.OPCODE, TokenType.LABEL]:
+                        if line_of_tokens[-1].t_type not in [TokenType.OPCODE, TokenType.LABEL_SYMBOLIC, TokenType.LABEL_NUMERIC]:
                             # Invalid label error
                             prev_token = line_of_tokens[-1]
                             show_syntax_error("Invalid label", line, i, prev_token.file_index_start)
-                        line_of_tokens[-1].t_type = TokenType.LABEL
+                        if lb.is_numeric_label(line_of_tokens[-1].text):
+                            line_of_tokens[-1].t_type = TokenType.LABEL_NUMERIC
+                        else:
+                            line_of_tokens[-1].t_type = TokenType.LABEL_SYMBOLIC
                         token_type = TokenType.LABEL_DELIMITER
 
                         token = Token(c, token_type, i + 1, line, index, line_of_tokens)
@@ -95,25 +100,25 @@ def _test():
 
     test_lines = [
         "#def       end_index 64 ; some comment or some such",
-        "STORE $0, [stack_reg]",
+        "lb: STORE $0, [stack_reg]",
         "STORE R0, [R3, mem_start] ; another comment",
         "1: MOV R2, 42"
     ]
 
     expected_output = [
         ["#def", "end_index", "64"],
-        ["STORE", "$0", ",", "[", "stack_reg", "]"],
+        ["lb", ":", "STORE", "$0", ",", "[", "stack_reg", "]"],
         ["STORE", "R0", ",", "[", "R3", ",", "mem_start", "]"],
         ["1", ":", "MOV", "R2", ",", "42"]
     ]
 
     expected_types = [
         [TokenType.OPCODE, TokenType.OPERAND, TokenType.OPERAND],
-        [TokenType.OPCODE, TokenType.OPERAND, TokenType.DELIMITER, TokenType.DELIMITER, TokenType.OPERAND,
-         TokenType.DELIMITER],
+        [TokenType.LABEL_SYMBOLIC, TokenType.LABEL_DELIMITER, TokenType.OPCODE, TokenType.OPERAND, TokenType.DELIMITER,
+         TokenType.DELIMITER, TokenType.OPERAND, TokenType.DELIMITER],
         [TokenType.OPCODE, TokenType.OPERAND, TokenType.DELIMITER, TokenType.DELIMITER, TokenType.OPERAND,
          TokenType.DELIMITER, TokenType.OPERAND, TokenType.DELIMITER],
-        [TokenType.LABEL, TokenType.LABEL_DELIMITER, TokenType.OPCODE, TokenType.OPERAND, TokenType.DELIMITER,
+        [TokenType.LABEL_NUMERIC, TokenType.LABEL_DELIMITER, TokenType.OPCODE, TokenType.OPERAND, TokenType.DELIMITER,
          TokenType.OPERAND]
     ]
 

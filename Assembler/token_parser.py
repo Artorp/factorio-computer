@@ -62,9 +62,16 @@ def token_parser(tokens):
             active_macro = None
         else:
             if active_macro is not None:
+                # check for symbolic (global) labels inside the macro
+                for token in line:
+                    if token.t_type in [TokenType.LABEL_SYMBOLIC]:
+                        show_syntax_error("Can't define symbolic (global) label within a macro. "
+                                          "Use numeric (local) labels instead",
+                                          token.file_raw_text,
+                                          token.file_number,
+                                          token.str_col)
                 # Insert instructions as tokens into active macro
                 active_macro.lines_of_inst.append(line)
-                # TODO: Ensure the copied tokens references the macro
     if active_macro is not None:
         show_syntax_error("Missing `#endm` declaration for declared macro",
                           active_macro.begin_token.file_raw_text,
@@ -175,7 +182,7 @@ def token_parser(tokens):
                         numeric_labels.append(label_num)
                     else:
                         if label.text in symbolic_labels:
-                            error_msg = "Label ´{}´ previously defined".format(label)
+                            error_msg = "Label ´{}´ previously defined".format(label.text)
                             show_syntax_error(error_msg, label.file_raw_text, label.file_number, label.str_col)
                         symbolic_labels[label.text] = label_target
                     line = line[2:]
