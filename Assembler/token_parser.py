@@ -20,42 +20,27 @@ def token_parser(tokens):
         if first_token.text.lower() == "#macro":
             # start new macro
             if active_macro is not None:
-                show_syntax_error("Can't define new macro within another macro",
-                                  first_token.file_raw_text,
-                                  first_token.file_number,
-                                  first_token.str_col)
+                show_syntax_error("Can't define new macro within another macro", first_token)
 
             if len(line) != 3:
                 show_syntax_error("Macro start tag needs a declaration, name and number of parameters.\n"
-                                  "Example: `#macro name 2`",
-                                  first_token.file_raw_text,
-                                  first_token.file_number,
-                                  first_token.str_col)
+                                  "Example: `#macro name 2`", first_token)
             macro_name = line[1].text
             if macro_name in macros:
-                show_syntax_error("Macro name must be unique",
-                                  line[1].file_raw_text,
-                                  line[1].file_number,
-                                  line[1].str_col)
+                show_syntax_error("Macro name must be unique", line[1])
             macro_params = -1
             try:
                 macro_params = int(line[2].text)
                 if macro_params < 0:
                     raise ValueError("")
             except ValueError:
-                show_syntax_error("Parameter count must be a non-negative integer",
-                                  line[2].file_raw_text,
-                                  line[2].file_number,
-                                  line[2].str_col)
+                show_syntax_error("Parameter count must be a non-negative integer", line[2])
 
             active_macro = Macro(macro_name, macro_params, i, first_token)
         elif first_token.text.lower() == "#endm":
             # finish macro definition
             if active_macro is None:
-                show_syntax_error("Invalid macro end, no matching macro declaration",
-                                  first_token.file_raw_text,
-                                  first_token.file_number,
-                                  first_token.str_col)
+                show_syntax_error("Invalid macro end, no matching macro declaration",first_token)
             # Note, index given to macro is the exclusive upper index, so increase index by one
             active_macro.token_line_end = i + 1
             macros[active_macro.name] = active_macro
@@ -66,17 +51,11 @@ def token_parser(tokens):
                 for token in line:
                     if token.t_type in [TokenType.LABEL_SYMBOLIC]:
                         show_syntax_error("Can't define symbolic (global) label within a macro. "
-                                          "Use numeric (local) labels instead",
-                                          token.file_raw_text,
-                                          token.file_number,
-                                          token.str_col)
+                                          "Use numeric (local) labels instead", token)
                 # Insert instructions as tokens into active macro
                 active_macro.lines_of_inst.append(line)
     if active_macro is not None:
-        show_syntax_error("Missing `#endm` declaration for declared macro",
-                          active_macro.begin_token.file_raw_text,
-                          active_macro.begin_token.file_number,
-                          active_macro.begin_token.str_col)
+        show_syntax_error("Missing `#endm` declaration for declared macro", active_macro.begin_token)
 
     # check for macro dependencies
     check_dependencies(macros)
@@ -105,11 +84,7 @@ def token_parser(tokens):
                 m = macros[line[0].text]
                 if len(line) != 1 + m.param_count:
                     show_syntax_error("Invalid number of macro parameters. Macro expects {}, got {}"
-                                      .format(m.param_count, len(line) - 1),
-                                      line[0].file_raw_text,
-                                      line[0].file_number,
-                                      line[0].str_col
-                                      )
+                                      .format(m.param_count, len(line) - 1), line[0])
                 params = line[1:]
                 # Replace line with body of macro
                 line_replace = list()
@@ -125,8 +100,7 @@ def token_parser(tokens):
                                     raise ValueError
                                 new_token.text = params[num].text
                             except ValueError:
-                                show_syntax_error("Parameter must have valid argument index",
-                                                  token.file_raw_text, token.file_number, token.str_col)
+                                show_syntax_error("Parameter must have valid argument index", token)
                     line_replace.append(line)
                 tokens = tokens[:index] + line_replace + tokens[index + 1:]
                 replacement_happened = True
@@ -144,11 +118,9 @@ def token_parser(tokens):
         if line[0].text.lower() == "#def":
             for t in line:
                 if t.t_type == TokenType.DELIMITER:
-                    show_syntax_error("Invalid symbol `{}` in definition".format(t.text),
-                                      t.file_raw_text, t.file_number, t.str_col)
+                    show_syntax_error("Invalid symbol `{}` in definition".format(t.text), t)
             if len(line) != 3:
-                show_syntax_error("A definition must have a declaration, a keyword, and a replacement",
-                                  line[0].file_raw_text, line[0].file_number, line[0].str_col)
+                show_syntax_error("A definition must have a declaration, a keyword, and a replacement", line[0])
             definitions[line[1].text] = line[2].text
 
     # Drop any definitions
@@ -173,7 +145,7 @@ def token_parser(tokens):
             for i, t in enumerate(line):
                 if t.t_type == TokenType.LABEL_DELIMITER:
                     if i != 1:
-                        show_syntax_error("Misplaced label colon", t.file_raw_text, t.file_number, t.str_col)
+                        show_syntax_error("Misplaced label colon", t)
                     found_label = True
                     label = line[0]
                     label_target = len(instructions)  # Target is absolute signed PC address
@@ -183,7 +155,7 @@ def token_parser(tokens):
                     else:
                         if label.text in symbolic_labels:
                             error_msg = "Label ´{}´ previously defined".format(label.text)
-                            show_syntax_error(error_msg, label.file_raw_text, label.file_number, label.str_col)
+                            show_syntax_error(error_msg, label)
                         symbolic_labels[label.text] = label_target
                     line = line[2:]
         if len(line) == 0:
@@ -192,7 +164,7 @@ def token_parser(tokens):
         # create instruction object
         opcode = line[0]
         operands = line[1:]
-        instruction = Instruction(opcode, operands, opcode.file_number, opcode.file_raw_text)
+        instruction = Instruction(opcode, operands, opcode.file_line_num, opcode.file_raw_text)
         instructions.append(instruction)
 
     # replace each branch label with the program address
@@ -211,7 +183,7 @@ def token_parser(tokens):
                     elif op[1] == "f":
                         label_target = lb.find_forward_label(numeric_labels, int(op[0]), i)
                 except AsmSyntaxError as e:
-                    show_syntax_error(e.args[0], operand.file_raw_text, operand.file_number, operand.str_col)
+                    show_syntax_error(e.args[0], operand)
                 operand.text = str(label_target.pc_adr)
                 label_target.was_referenced = True
 

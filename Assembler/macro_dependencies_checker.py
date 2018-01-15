@@ -2,7 +2,7 @@
 
 import time
 
-from exceptions import show_syntax_error
+from exceptions import show_parsing_error
 
 
 class MacroWrapper:
@@ -36,10 +36,7 @@ def check_dependencies(macros, verbose=False):
         for token_line in w.macro.lines_of_inst:
             for token in token_line:
                 if token.text == w.macro.name:
-                    show_syntax_error("A macro cannot reference itself, infinite recursion",
-                                      token.file_raw_text,
-                                      token.file_number,
-                                      token.str_col)
+                    show_parsing_error("A macro cannot reference itself, infinite recursion", token)
                 if token.text in macros:
                     w.dependencies.add(wrapped_macros[token.text])
 
@@ -85,11 +82,8 @@ def check_dependencies(macros, verbose=False):
                                 cycle_reverse.append(nabo.macro.name)
                                 cycle_readable = " => ".join(reversed(cycle_reverse))
                                 t = nabo.macro.begin_token
-                                show_syntax_error("Found cyclic dependency in macro. Leads to infinite recursion.\n"
-                                                  + " " * 13 + "Cycle: "+cycle_readable,
-                                                  t.file_raw_text,
-                                                  t.file_number,
-                                                  t.str_col)
+                                show_parsing_error("Found cyclic dependency in macro. Leads to infinite recursion.\n"
+                                                  + "Cycle: "+cycle_readable, t)
                             nabo.parent.num_active_deps -= 1
                         node.num_active_deps += 1
                         nabo.parent = node

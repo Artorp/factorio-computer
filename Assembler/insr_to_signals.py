@@ -16,8 +16,7 @@ def inst_to_signals(instructions):
         assert isinstance(inst, Instruction)
         opcode = inst.opcode.text
         if opcode.upper() not in opcodes:
-            show_syntax_error("Unknown opcode {}".format(opcode),
-                              inst.opcode.file_raw_text, inst.opcode.file_number, inst.opcode.str_col)
+            show_syntax_error("Unknown opcode {}".format(opcode), inst)
         control_signals, encoding = opcodes[opcode.upper()]()
         instruction_signals = iterate_operands(inst, control_signals, encoding)
 
@@ -33,7 +32,7 @@ def iterate_operands(inst: Instruction, sig_dict, encoding):
     if len(operands) != len(encoding):
         t = inst.opcode
         show_syntax_error("Incorrect number of operands, was {} but expected {}".format(len(operands), len(encoding)),
-                          t.file_raw_text, t.file_number, t.str_col + len(t.text))
+                          t)
     for i, e in enumerate(operands):
         operand_signals = get_signals_by_operand(e, encoding[i])
         result_signals.update(operand_signals)
@@ -85,20 +84,18 @@ def get_signals_by_operand(operand, operand_type_w_signals):
 def immediate_from_operand(operand):
     val = operand.text
     if not int_l.is_number_or_literal(val):
-        show_syntax_error("invalid number {}, must be on format [-][0x|0b]nnnn".format(val),
-                          operand.file_raw_text, operand.file_number, operand.str_col)
+        show_syntax_error("invalid number {}, must be on format [-][0x|0b]nnnn".format(val), operand)
     num = int_l.to_number_or_literal(val)
     if not int_l.verify_number_range(num):
         show_syntax_error("Immediate number outside signed 32-bit range. Must be within -2^31..2^31 -1. Was: " + num,
-                          operand.file_raw_text, operand.file_number, operand.str_col)
+                          operand)
     return num
 
 
 def register_from_operand(operand):
     val = operand.text
     if val.upper() not in registers.register_dict:
-        show_syntax_error("Unknown register " + val,
-                          operand.file_raw_text, operand.file_number, operand.str_col)
+        show_syntax_error("Unknown register " + val, operand)
     return registers.register_dict[val.upper()]
 
 
@@ -119,13 +116,11 @@ def extract_operands(operand_tokens):
     for t in operand_tokens:
         if t.text == "[":
             if active_bracket_group is not None:
-                show_syntax_error("Can't open a bracket within another bracket.",
-                                  t.file_raw_text, t.file_number, t.str_col)
+                show_syntax_error("Can't open a bracket within another bracket.", t)
             active_bracket_group = list()
         elif t.text == "]":
             if len(active_bracket_group) == 0:
-                show_syntax_error("Invalid content in bracket group",
-                                  t.file_raw_text, t.file_number, t.str_col)
+                show_syntax_error("Invalid content in bracket group", t)
             result.append(active_bracket_group)
             active_bracket_group = None
         elif t.text == ",":
@@ -138,5 +133,5 @@ def extract_operands(operand_tokens):
                 result.append(t)
     if active_bracket_group is not None:
         t = operand_tokens[-1]
-        show_syntax_error("Did not close bracket", t.file_raw_text, t.file_number, t.str_col)
+        show_syntax_error("Did not close bracket", t)
     return result

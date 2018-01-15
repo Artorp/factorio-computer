@@ -2,39 +2,8 @@
 
 #def f_0 0
 #def f_1 1
-#def stack_reg R7
 #def mem_start 2
 #def end_index 64
-
-#macro push 1 ; name then number of parameters
-STORE $0, [stack_reg]
-INC stack_reg
-#endm
-
-#macro testing 2
-$0 $1 $0
-#endm
-
-#macro testing_2 2
-$0 $1 $0
-#endm
-
-testing testing_2 testing
-
-#macro pop 1
-DEC stack_reg
-LOAD $0, [stack_reg]
-TST 4
-BN 1f
-1:
-#endm
-
-;
-;push R4
-;push R5
-;
-;pop R5
-;pop R4
 
 ; setup
 ; insert the two first numbers into memory
@@ -45,11 +14,11 @@ MOV R0, 1 ; 2nd number
 STORE R0, [1]
 MOV R1, f_1 ; prev
 MOV R2, f_0 ; 2nd prev
-1:
+fib_loop:
 ADD R0, R1, R2 ; 3rd number
 MOV R2, R1
 MOV R1, R0
 STORE R0, [R3, mem_start]
 INC R3
 CMP R3, end_index
-BN 1b
+BN fib_loop

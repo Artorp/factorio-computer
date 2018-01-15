@@ -19,17 +19,17 @@ class TokenType(Enum):
 
 
 class Token:
-    def __init__(self, text, t_type, file_number, file_raw_text, file_index_start, tokens):
+    def __init__(self, text, t_type, file_line_num, file_raw_text, file_index_start, tokens):
         self.text = text
         self.t_type = t_type
-        self.file_number = file_number
+        self.file_line_num = file_line_num
         self.file_raw_text = file_raw_text.strip("\n")
         self.str_col = file_index_start
         self.tokens = tokens
         self.original_token = None  # If copied from a macro, link to original token here
 
     def copy(self):
-        new_token = Token(self.text, self.t_type, self.file_number, self.file_raw_text, self.str_col, self.tokens)
+        new_token = Token(self.text, self.t_type, self.file_line_num, self.file_raw_text, self.str_col, self.tokens)
         new_token.original_token = self
         return new_token
 
@@ -69,12 +69,13 @@ def tokenize_file(filename):
                         found_opcode = False
                         if len(line_of_tokens) == 0:
                             # Missing label error
-                            show_syntax_error("Missing label", line, i, index)
+                            error_token = Token(":", TokenType.DELIMITER, i + 1, line, 0, line_of_tokens)
+                            show_syntax_error("Missing label", error_token)
                         if line_of_tokens[-1].t_type not in [TokenType.OPCODE, TokenType.LABEL_SYMBOLIC,
                                                              TokenType.LABEL_NUMERIC]:
                             # Invalid label error
                             prev_token = line_of_tokens[-1]
-                            show_syntax_error("Invalid label", line, i, prev_token.file_index_start)
+                            show_syntax_error("Invalid label", prev_token)
                         if lb.is_numeric_label(line_of_tokens[-1].text):
                             line_of_tokens[-1].t_type = TokenType.LABEL_NUMERIC
                         else:

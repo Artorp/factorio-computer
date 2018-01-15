@@ -1,6 +1,7 @@
 # custom exceptions
 
 import sys
+import time
 
 
 class AsmSyntaxError(Exception):
@@ -15,15 +16,28 @@ class ParseFileError(Exception):
     pass
 
 
-def show_syntax_error(msg, raw_line_str, line_number, index=-1):
+def show_parsing_error(msg, token):
+    output_error("ParsingError", msg, token)
+
+
+def show_syntax_error(msg, token):
+    output_error("SyntaxError", msg, token)
+
+
+def output_error(error_type, msg, token):
     """Show a message to stderr, then exit"""
-    # TODO: Accept token as context?
-    # TODO: Other types of error? Cyclic dependency for instance isn't syntax error.
+    raw_line = token.file_raw_text
+    line_number = token.file_number
+    index = token.str_col
+    if "\n" in msg:
+        splat = msg.split("\n")
+        indented = msg[1:]
+        msg = msg[0] + [" " * (len(error_type) + 1) + _ for _ in indented]
     indent_len = 4
     error_msg = "  Line {}\n".format(line_number)
-    error_msg += " " * indent_len + raw_line_str + "\n"
-    space_offset = 0 if index == -1 else index
-    error_msg += " " * (indent_len + space_offset) + "^\n"
-    error_msg += "SyntaxError: " + msg
+    error_msg += " " * indent_len + raw_line + "\n"
+    error_msg += " " * (indent_len + index) + "^\n"
+    error_msg += error_type + ": " + msg
+    time.sleep(0.005)
     print(error_msg, file=sys.stderr)
     exit(0)
