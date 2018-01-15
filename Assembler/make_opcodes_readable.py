@@ -11,8 +11,8 @@ def make_opcodes_readable():
         OpTy.REGISTER: "R",
         OpTy.IMMEDIATE: "I",
         OpTy.REG_OR_IMM: "R/I",
-        OpTy.REG_OR_IMM_OR_BOTH: "[R/I/R, I]",
-        OpTy.REG_OR_LABEL: "R/<label>"
+        OpTy.REG_OR_IMM_OR_BOTH: "[R/I/R,I]",
+        OpTy.REG_OR_LABEL: "R/L"
     }
     encodings = OrderedDict()
     for opcode in opcodes:
