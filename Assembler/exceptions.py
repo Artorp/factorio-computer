@@ -27,12 +27,12 @@ def show_syntax_error(msg, token):
 def output_error(error_type, msg, token):
     """Show a message to stderr, then exit"""
     raw_line = token.file_raw_text
-    line_number = token.file_number
+    line_number = token.file_line_num
     index = token.str_col
     if "\n" in msg:
         splat = msg.split("\n")
-        indented = msg[1:]
-        msg = msg[0] + [" " * (len(error_type) + 1) + _ for _ in indented]
+        indented = splat[1:]
+        msg = splat[0] + "".join(["\n" + " " * (len(error_type) + 2) + _ for _ in indented])
     indent_len = 4
     error_msg = "  Line {}\n".format(line_number)
     error_msg += " " * indent_len + raw_line + "\n"
