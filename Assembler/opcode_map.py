@@ -1,9 +1,10 @@
 # all opcodes and their signals are programmed here
 
+from collections import OrderedDict
 from operand_type import OperandType
 
 
-opcodes = dict()
+opcodes = OrderedDict()
 
 
 def tag(opcode):
