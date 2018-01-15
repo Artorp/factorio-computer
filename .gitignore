@@ -40,3 +40,6 @@ __pycache__
 # *.tar # Used for setting.tar
 *.zip
 
+
+# Project spesific files
+input_preprocessed.fal
