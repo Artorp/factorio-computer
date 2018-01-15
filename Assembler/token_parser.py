@@ -1,6 +1,7 @@
 # Takes in a list of list of tokens, and pre-processes them into a list of instructions
 
 import sys
+import constants
 from tokenizer import Token, TokenType
 from macro import Macro
 import label as lb
@@ -83,7 +84,11 @@ def token_parser(tokens):
         tokens = tokens[:m.token_line_begin] + tokens[m.token_line_end:]
 
     replacement_happened = True
+    i = 0
     while replacement_happened:
+        if i > constants.MAX_MACRO_DEPTH:
+            raise Exception("At the {}th iteration, reached max macro depth. Misusing macros are we?".format(i))
+        i += 1
         replacement_happened = False
         # Traverse the tokens in reverse order, while keeping own index
         index = len(tokens) - 1

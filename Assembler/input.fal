@@ -11,6 +11,16 @@ STORE $0, [stack_reg]
 INC stack_reg
 #endm
 
+#macro testing 2
+$0 $1 $0
+#endm
+
+#macro testing_2 2
+$0 $1 $0
+#endm
+
+testing testing_2 testing
+
 #macro pop 1
 DEC stack_reg
 LOAD $0, [stack_reg]
