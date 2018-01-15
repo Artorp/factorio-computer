@@ -1,14 +1,12 @@
 # takes a list of instructions and generates list of signals for the constant combinators PROM
 
-import sys
 
-from instruction import Instruction
-from exceptions import ParseOperandError, show_syntax_error
-from tokenizer import TokenType
 import integer_literal as int_l
 import registers
-from operand_type import OperandType
+from exceptions import show_syntax_error
+from instruction import Instruction
 from opcode_map import opcodes
+from operand_type import OperandType
 
 
 def inst_to_signals(instructions):
@@ -16,10 +14,10 @@ def inst_to_signals(instructions):
 
     for inst in instructions:
         assert isinstance(inst, Instruction)
-        opcode = inst.opcode_t.text
+        opcode = inst.opcode.text
         if opcode.upper() not in opcodes:
             show_syntax_error("Unknown opcode {}".format(opcode),
-                              inst.opcode_t.file_raw_text, inst.opcode_t.file_number, inst.opcode_t.str_col)
+                              inst.opcode.file_raw_text, inst.opcode.file_number, inst.opcode.str_col)
         control_signals, encoding = opcodes[opcode.upper()]()
         instruction_signals = iterate_operands(inst, control_signals, encoding)
 
@@ -31,9 +29,9 @@ def inst_to_signals(instructions):
 def iterate_operands(inst: Instruction, sig_dict, encoding):
     result_signals = dict()
     result_signals.update(sig_dict)
-    operands = extract_operands(inst.operands_t)
+    operands = extract_operands(inst.operands)
     if len(operands) != len(encoding):
-        t = inst.opcode_t
+        t = inst.opcode
         show_syntax_error("Incorrect number of operands, was {} but expected {}".format(len(operands), len(encoding)),
                           t.file_raw_text, t.file_number, t.str_col + len(t.text))
     for i, e in enumerate(operands):

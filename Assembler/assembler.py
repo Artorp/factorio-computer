@@ -3,18 +3,18 @@
 # input: input.fal
 # output: output.txt
 
+import json
 import os
-import sys
 import platform
 import time
+
 import constants
-from tokenizer import tokenize_file
-from token_parser import token_parser
-from instruction import Instruction
-from insr_to_signals import inst_to_signals
 from blueprint_generator import Blueprint
 from blueprint_import_export import bp_compress, bp_encode_base64
-import json
+from insr_to_signals import inst_to_signals
+from instruction import Instruction
+from token_parser import token_parser
+from tokenizer import tokenize_file
 
 
 def main():
@@ -32,8 +32,8 @@ def main():
     with open(file_preprocessed, "w") as f:
         for inst in instructions:
             assert isinstance(inst, Instruction)
-            line = inst.opcode.ljust(5) + " "
-            line += inst.operands
+            line = inst.opcode.text.ljust(5) + " "
+            line += " ".join([str(_.text) for _ in inst.operands])
             f.write(line + "\n")
     
     combinator_signals = inst_to_signals(instructions)

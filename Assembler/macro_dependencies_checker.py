@@ -1,8 +1,8 @@
 # Takes in a dictionary of macroes, checks if they have cyclic dependencies
 
 import time
+
 from exceptions import show_syntax_error
-from tokenizer import tokenize_file
 
 
 class MacroWrapper:
@@ -16,11 +16,14 @@ class MacroWrapper:
 
 
 def check_dependencies(macros, verbose=False):
-    if len(macros) < 2:
-        print("{}, skipping dependency check".format(
-            "No macros found" if len(macros) == 0 else "Only one macro found"
-        ))
-        return
+    if verbose:
+        if len(macros) < 2:
+            print("{}, skipping dependency check.".format(
+                "No macros found" if len(macros) == 0 else "Only one macro found"
+            ))
+            return
+        else:
+            print("Running macro dependency check...")
     # Wrap all macros
     wrapped_macros = dict()
     for macro in macros:

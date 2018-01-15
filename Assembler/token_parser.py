@@ -42,7 +42,7 @@ def token_parser(tokens):
                 macro_params = int(line[2].text)
                 if macro_params < 0:
                     raise ValueError("")
-            except ValueError as ve:
+            except ValueError:
                 show_syntax_error("Parameter count must be a non-negative integer",
                                   line[2].file_raw_text,
                                   line[2].file_number,
@@ -193,18 +193,16 @@ def token_parser(tokens):
         opcode = line[0]
         operands = line[1:]
         instruction = Instruction(opcode, operands, opcode.file_number, opcode.file_raw_text)
-        instruction.update_texts()  # TODO: Temp function
         instructions.append(instruction)
 
     # replace each branch label with the program address
     unused_labels = set(symbolic_labels.keys())
     for i, inst in enumerate(instructions):
-        for operand in inst.operands_t:
+        for operand in inst.operands:
             op = operand.text
             if op in symbolic_labels:
                 unused_labels.discard(op)
                 operand.text = symbolic_labels[op]
-                inst.update_texts() # TODO: Again, temp call
             elif len(op) == 2 and op[0].isdecimal() and op[1] in ["b", "f"]:
                 label_target = None
                 try:
@@ -216,7 +214,6 @@ def token_parser(tokens):
                     show_syntax_error(e.args[0], operand.file_raw_text, operand.file_number, operand.str_col)
                 operand.text = str(label_target.pc_adr)
                 label_target.was_referenced = True
-                inst.update_texts() # TODO: Again, temp call
 
     for numeric_label in numeric_labels:
         if not numeric_label.was_referenced:

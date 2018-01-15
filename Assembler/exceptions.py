@@ -2,6 +2,7 @@
 
 import sys
 
+
 class AsmSyntaxError(Exception):
     pass
 
