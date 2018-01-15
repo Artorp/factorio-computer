@@ -11,7 +11,6 @@ import constants
 from tokenizer import tokenize_file
 from token_parser import token_parser
 from instruction import Instruction
-from file_parser import parse_file
 from insr_to_signals import inst_to_signals
 from blueprint_generator import Blueprint
 from blueprint_import_export import bp_compress, bp_encode_base64
@@ -29,8 +28,6 @@ def main():
     lines_of_tokens = tokenize_file(file_in)
 
     instructions = token_parser(lines_of_tokens)
-
-    # instructions = parse_file(file_in) # TODO: Remove
 
     with open(file_preprocessed, "w") as f:
         for inst in instructions:
