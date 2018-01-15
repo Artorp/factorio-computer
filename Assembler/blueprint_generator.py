@@ -4,9 +4,9 @@
 # see https://wiki.factorio.com/Blueprint_string_format for JSON structure
 
 import json
+import constants
 
-map_version = 64427130880  # copied from random blueprint, possibly insignificant
-single_line_filename = "single_line.json"
+map_version = 64427130880  # copied from random blueprint, probably insignificant
 
 
 class Blueprint:
@@ -61,7 +61,7 @@ class Blueprint:
             raise ValueError("Number of lines must be non-negative, was {}".format(number_of_lines))
         if number_of_lines == 0:
             return
-        with open(single_line_filename) as f:
+        with open(constants.PROM_SINGLE_LINE_TEMPLATE) as f:
             single_line_json = f.read()
 
         i = 0

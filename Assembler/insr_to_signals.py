@@ -4,8 +4,19 @@ import sys
 
 from instruction import Instruction
 from exceptions import ParseOperandError, show_syntax_error
-from operand_parser import OperandType, parse_operand
+from tokenizer import TokenType
+import integer_literal as int_l
 import registers
+from enum import Enum, auto
+
+
+class OperandType(Enum):
+    REGISTER = auto()
+    IMMEDIATE = auto()
+    REG_OR_IMM_OR_BOTH = auto()
+    REG_OR_IMM = auto()
+    REG_OR_LABEL = auto()
+
 
 opcodes = dict()
 
@@ -20,9 +31,10 @@ def inst_to_signals(instructions):
 
     for inst in instructions:
         assert isinstance(inst, Instruction)
-        opcode = inst.opcode
+        opcode = inst.opcode_t.text
         if opcode.upper() not in opcodes:
-            show_syntax_error("unknown opcode {}".format(opcode), inst.raw_instruction, inst.line)
+            show_syntax_error("Unknown opcode {}".format(opcode),
+                              inst.opcode_t.file_raw_text, inst.opcode_t.file_number, inst.opcode_t.str_col)
         instruction_signals = opcodes[opcode.upper()](inst)
 
         const_comb_signals.append(instruction_signals)
@@ -44,13 +56,12 @@ def nop_inst(instruction):
 def store_inst(instruction):
     signals = {"copper-plate": 2}
     encoding = [
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-L": 1, "signal-1": "var"}, {"signal-B": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE_BOTH,
+        [OperandType.REG_OR_IMM_OR_BOTH,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}]
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("LOAD")
@@ -58,44 +69,40 @@ def store_inst(instruction):
     signals = {"copper-plate": 4}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE_BOTH,
+        [OperandType.REG_OR_IMM_OR_BOTH,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}]
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("B")
 def b_inst(instruction):
     signals = {"copper-plate": 7}
     encoding = [
-        [OperandType.REGISTER_OR_LABEL,
+        [OperandType.REG_OR_LABEL,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}]
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("BZ")
 def bz_inst(instruction):
     signals = {"copper-plate": 7, "signal-C": 1}
     encoding = [
-        [OperandType.REGISTER_OR_LABEL,
+        [OperandType.REG_OR_LABEL,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}]
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("BN")
 def bn_inst(instruction):
     signals = {"copper-plate": 7, "signal-C": 2}
     encoding = [
-        [OperandType.REGISTER_OR_LABEL,
+        [OperandType.REG_OR_LABEL,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}]
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("ALU")
@@ -103,9 +110,9 @@ def alu_inst(instruction):
     signals = {"copper-plate": 9}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-L": 1, "signal-1": "var"}, {"signal-B": "var"}],
         [OperandType.IMMEDIATE, {"signal-O": "var"}],
         [OperandType.IMMEDIATE, {"signal-2": "var"}],
@@ -113,8 +120,7 @@ def alu_inst(instruction):
         [OperandType.IMMEDIATE, {"signal-F": "var"}],
         [OperandType.IMMEDIATE, {"signal-red": "var"}]
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("MOV")
@@ -122,11 +128,10 @@ def mov_inst(instruction):
     signals = {"copper-plate": 9, "signal-red": 1, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}]
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("ADD")
@@ -134,13 +139,12 @@ def add_inst(instruction):
     signals = {"copper-plate": 9, "signal-red": 1, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-L": 1, "signal-1": "var"}, {"signal-B": "var"}]
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("SUB")
@@ -148,13 +152,12 @@ def sub_inst(instruction):
     signals = {"copper-plate": 9, "signal-red": 1, "signal-2": 1, "signal-3": -1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-L": 1, "signal-1": "var"}, {"signal-B": "var"}]
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("INC")
@@ -163,8 +166,7 @@ def inc_inst(instruction):
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var", "signal-K": 1, "signal-0": "var"}]
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("DEC")
@@ -173,32 +175,29 @@ def dec_inst(instruction):
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var", "signal-K": 1, "signal-0": "var"}]
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("CMP")
 def cmp_inst(instruction):
     signals = {"copper-plate": 9, "signal-2": 1, "signal-3": -1}
     encoding = [
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-L": 1, "signal-1": "var"}, {"signal-B": "var"}]
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("TST")
 def add_inst(instruction):
     signals = {"copper-plate": 9, "signal-2": 1}
     encoding = [
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}]
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("MUL")
@@ -206,13 +205,12 @@ def mul_inst(instruction):
     signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 1, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-L": 1, "signal-1": "var"}, {"signal-B": "var"}]
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("DIV")
@@ -220,13 +218,12 @@ def div_inst(instruction):
     signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 2, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-L": 1, "signal-1": "var"}, {"signal-B": "var"}]
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("POW")
@@ -234,13 +231,12 @@ def pow_inst(instruction):
     signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 3, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-L": 1, "signal-1": "var"}, {"signal-B": "var"}]
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("MOD")
@@ -248,13 +244,12 @@ def mod_inst(instruction):
     signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 4, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-L": 1, "signal-1": "var"}, {"signal-B": "var"}]
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("ASR")
@@ -262,13 +257,12 @@ def asr_inst(instruction):
     signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 5, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-L": 1, "signal-1": "var"}, {"signal-B": "var"}]
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("LSL")
@@ -276,13 +270,12 @@ def lsl_inst(instruction):
     signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 6, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-L": 1, "signal-1": "var"}, {"signal-B": "var"}]
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("LSR")
@@ -290,11 +283,10 @@ def lsr_inst(instruction):
     signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 7, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}],
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("ROL")
@@ -302,11 +294,10 @@ def rol_inst(instruction):
     signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 8, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}],
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("ROR")
@@ -314,11 +305,10 @@ def ror_inst(instruction):
     signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 9, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}],
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("NOT")
@@ -326,11 +316,10 @@ def not_inst(instruction):
     signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 10, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}],
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("AND")
@@ -338,13 +327,12 @@ def and_inst(instruction):
     signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 11, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-L": 1, "signal-1": "var"}, {"signal-B": "var"}]
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("OR")
@@ -352,13 +340,12 @@ def or_inst(instruction):
     signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 12, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-L": 1, "signal-1": "var"}, {"signal-B": "var"}]
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 @tag("XOR")
@@ -366,88 +353,125 @@ def xor_inst(instruction):
     signals = {"copper-plate": 9, "signal-red": 1, "signal-F": 13, "signal-2": 1, "signal-3": 1}
     encoding = [
         [OperandType.REGISTER, {"signal-U": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}],
-        [OperandType.OR_REGISTER_IMMEDIATE,
+        [OperandType.REG_OR_IMM,
          {"signal-L": 1, "signal-1": "var"}, {"signal-B": "var"}]
     ]
-    iterate_operands(instruction, signals, encoding)
-    return signals
+    return iterate_operands(instruction, signals, encoding)
 
 
 def iterate_operands(inst: Instruction, sig_dict, encoding):
-    operands = split_instruction(inst.operands)
+    result_signals = dict()
+    result_signals.update(sig_dict)
+    operands = extract_operands(inst.operands_t)
     if len(operands) != len(encoding):
-        show_syntax_error("Incorrect number of opcodes, was {} but expected {}".format(len(operands), len(encoding)),
-                          inst.raw_instruction, inst.line)
+        t = inst.opcode_t
+        show_syntax_error("Incorrect number of operands, was {} but expected {}".format(len(operands), len(encoding)),
+                          t.file_raw_text, t.file_number, t.str_col + len(t.text))
     for i, e in enumerate(operands):
-        add_signals(sig_dict, encoding[i], e, inst.raw_instruction, inst.line)
+        operand_signals = get_signals_by_operand(e, encoding[i])
+        result_signals.update(operand_signals)
+    return result_signals
 
 
-def add_signals(signals, encoding, operand: str, raw_inst, file_line):
-    try:
-        if encoding[0] == OperandType.OR_REGISTER_IMMEDIATE_BOTH:
-            if not operand.startswith("[") or not operand.endswith("]"):
-                show_syntax_error("Register indirect must be wrapped in brackets. E.g.: [R0]",
-                                  raw_inst, file_line)
-            operand = operand.strip("[]")
-            reg, imm, i = parse_operand(operand, 0, encoding[0])
-            reg_signals = encoding[1]
-            imm_signals = encoding[2]
-            if reg is not None:
-                for signal_name in reg_signals:
-                    if reg_signals[signal_name] == "var":
-                        reg_signals[signal_name] = registers.register_dict[reg]
-                signals.update(reg_signals)
-            if imm is not None:
-                for signal_name in imm_signals:
-                    if imm_signals[signal_name] == "var":
-                        imm_signals[signal_name] = imm
-                signals.update(imm_signals)
-        elif encoding[0] == OperandType.REGISTER_OR_LABEL or encoding[0] == OperandType.OR_REGISTER_IMMEDIATE:
-            val, i = parse_operand(operand, 0, encoding[0])
-            reg_signals = encoding[1]
-            val_signals = encoding[2]
-            if val in registers.register_dict:
-                # treat as register
-                reg = registers.register_dict[val]
-                for signal_name in reg_signals:
-                    if reg_signals[signal_name] == "var":
-                        reg_signals[signal_name] = reg
-                signals.update(reg_signals)
+def get_signals_by_operand(operand, operand_type_w_signals):
+    operand_dict = dict()
+    operand_type = operand_type_w_signals[0]
+    signal_dict = operand_type_w_signals[1]
+    if operand_type == OperandType.IMMEDIATE:
+        val = immediate_from_operand(operand)
+        operand_dict.update(replace_val_in_dict(signal_dict, val))
+    elif operand_type == OperandType.REGISTER:
+        val = register_from_operand(operand)
+        operand_dict.update(replace_val_in_dict(signal_dict, val))
+    elif operand_type in [OperandType.REG_OR_IMM, OperandType.REG_OR_LABEL]:
+        # label is now a value, so same logic as register / imm
+        # Must see if operand has register or value
+        last_signal_dict = operand_type_w_signals[2]
+        if int_l.is_number_or_literal(operand.text):
+            val = immediate_from_operand(operand)
+            operand_dict.update(replace_val_in_dict(last_signal_dict, val))
+        else:
+            val = register_from_operand(operand)
+            operand_dict.update(replace_val_in_dict(signal_dict, val))
+    elif operand_type == OperandType.REG_OR_IMM_OR_BOTH:
+        # operand is a list, check length
+        last_signal_dict = operand_type_w_signals[2]
+        if len(operand) == 2:
+            # both reg and imm
+            reg = register_from_operand(operand[0])
+            imm = immediate_from_operand(operand[1])
+            operand_dict.update(replace_val_in_dict(signal_dict, reg))
+            operand_dict.update(replace_val_in_dict(last_signal_dict, imm))
+        elif len(operand) == 1:
+            # must check if operand is register or immediate value
+            if int_l.is_number_or_literal(operand[0].text):
+                val = immediate_from_operand(operand[0])
+                operand_dict.update(replace_val_in_dict(last_signal_dict, val))
             else:
-                for signal_name in val_signals:
-                    if val_signals[signal_name] == "var":
-                        val_signals[signal_name] = val
-                signals.update(val_signals)
+                val = register_from_operand(operand[0])
+                operand_dict.update(replace_val_in_dict(signal_dict, val))
         else:
-            val, i = parse_operand(operand, 0, encoding[0])
-            if val in registers.register_dict:
-                val = registers.register_dict[val]
-            sigs = encoding[1]
-            for signal_name in sigs:
-                if sigs[signal_name] == "var":
-                    sigs[signal_name] = val
-            signals.update(sigs)
-    except ParseOperandError as e:
-        context = e.args[0]
-        index = -1 if "index" not in context else context["index"]
-        show_syntax_error(context["msg"], raw_inst, file_line, index)
+            raise Exception("Unknown error: Extracted bracket operand has no length")
+    return operand_dict
 
 
-def split_instruction(instruction):
-    splat = [_.strip() for _ in instruction.split(",")]
-    if "[" not in instruction and "]" not in instruction:
-        return splat
-    grouped = []
-    join_next = False
-    for i, e in enumerate(splat):
-        if join_next:
-            grouped[-1] += ","+e
+def immediate_from_operand(operand):
+    val = operand.text
+    if not int_l.is_number_or_literal(val):
+        show_syntax_error("invalid number {}, must be on format [-][0x|0b]nnnn".format(val),
+                          operand.file_raw_text, operand.file_number, operand.str_col)
+    num = int_l.to_number_or_literal(val)
+    if not int_l.verify_number_range(num):
+        show_syntax_error("Immediate number outside signed 32-bit range. Must be within -2^31..2^31 -1. Was: " + num,
+                          operand.file_raw_text, operand.file_number, operand.str_col)
+    return num
+
+
+def register_from_operand(operand):
+    val = operand.text
+    if val.upper() not in registers.register_dict:
+        show_syntax_error("Unknown register " + val,
+                          operand.file_raw_text, operand.file_number, operand.str_col)
+    return registers.register_dict[val.upper()]
+
+
+def replace_val_in_dict(sym_d, val):
+    for key in sym_d:
+        if sym_d[key] == "var":
+            sym_d[key] = val
+    return sym_d
+
+
+def extract_operands(operand_tokens):
+    """
+    Takes in a list of tokens, and extracts the operands
+    Brackets are grouped as a list.
+    """
+    result = list()
+    active_bracket_group = None
+    for t in operand_tokens:
+        if t.text == "[":
+            if active_bracket_group is not None:
+                show_syntax_error("Can't open a bracket within another bracket.",
+                                  t.file_raw_text, t.file_number, t.str_col)
+            active_bracket_group = list()
+        elif t.text == "]":
+            if len(active_bracket_group) == 0:
+                show_syntax_error("Invalid content in bracket group",
+                                  t.file_raw_text, t.file_number, t.str_col)
+            result.append(active_bracket_group)
+            active_bracket_group = None
+        elif t.text == ",":
+            continue
         else:
-            grouped.append(e)
-        join_next = "[" in e
-        if join_next and "]" in e:
-            join_next = False
-    return grouped
-
+            if active_bracket_group is not None:
+                # append to bracket group
+                active_bracket_group.append(t)
+            else:
+                result.append(t)
+    if active_bracket_group is not None:
+        t = operand_tokens[-1]
+        show_syntax_error("Did not close bracket", t.file_raw_text, t.file_number, t.str_col)
+    return result
