@@ -1,11 +1,12 @@
 # Takes in a list of list of tokens, and pre-processes them into a list of instructions
 
+import sys
 from tokenizer import Token, TokenType
 from macro import Macro
 import label as lb
 from instruction import Instruction
 from macro_dependencies_checker import check_dependencies
-from exceptions import show_syntax_error
+from exceptions import show_syntax_error, AsmSyntaxError
 
 
 def token_parser(tokens):
@@ -80,15 +81,6 @@ def token_parser(tokens):
         assert isinstance(m, Macro)
         # token_line_begin and token_line_end
         tokens = tokens[:m.token_line_begin] + tokens[m.token_line_end:]
-        print(str(m.begin_token.file_number))
-
-    for m_key in macros:
-        m = macros[m_key]
-        print(m_key)
-        for line in m.lines_of_inst:
-            print([_.text for _ in line])
-
-    print("\n\nBefore replacements\n\n")
 
     replacement_happened = True
     while replacement_happened:
@@ -127,12 +119,6 @@ def token_parser(tokens):
                 tokens = tokens[:index] + line_replace + tokens[index + 1:]
                 replacement_happened = True
             index -= 1
-
-    # print("\n\nAfterwards")
-    # for line in tokens:
-    #     for t in line:
-    #         print(t.text + " ", end="")
-    #     print()
 
     # Handle definitions
     definitions = dict()
@@ -193,21 +179,41 @@ def token_parser(tokens):
 
         # create instruction object
         opcode = line[0]
-        operands_readable = [_.text for _ in line[1:]]
-        operands = " ".join(operands_readable)  # TODO: send tokens instead, to simplify operand parsing
-        instruction = Instruction(opcode.text, operands, opcode.file_number, opcode.file_raw_text)
+        operands = line[1:]
+        instruction = Instruction(opcode, operands, opcode.file_number, opcode.file_raw_text)
+        instruction.update_texts()  # TODO: Temp function
         instructions.append(instruction)
 
-    for inst in instructions:
-        print(inst.opcode, inst.operands)
+    # replace each branch label with the program address
+    unused_labels = set(symbolic_labels.keys())
+    for i, inst in enumerate(instructions):
+        for operand in inst.operands_t:
+            op = operand.text
+            if op in symbolic_labels:
+                unused_labels.discard(op)
+                operand.text = symbolic_labels[op]
+                inst.update_texts() # TODO: Again, temp call
+            elif len(op) == 2 and op[0].isdecimal() and op[1] in ["b", "f"]:
+                label_target = None
+                try:
+                    if op[1] == "b":
+                        label_target = lb.find_back_label(numeric_labels, int(op[0]), i)
+                    elif op[1] == "f":
+                        label_target = lb.find_forward_label(numeric_labels, int(op[0]), i)
+                except AsmSyntaxError as e:
+                    show_syntax_error(e.args[0], operand.file_raw_text, operand.file_number, operand.str_col)
+                operand.text = str(label_target.pc_adr)
+                label_target.was_referenced = True
+                inst.update_texts() # TODO: Again, temp call
 
-    
+    for numeric_label in numeric_labels:
+        if not numeric_label.was_referenced:
+            unused_labels.add(str(numeric_label.digit))
 
+    if len(unused_labels) > 0:
+        print("Warning: Unused label(s), {}".format(", ".join(unused_labels)), file=sys.stderr)
 
-    return None
+    # for inst in instructions:
+    #     print(inst.opcode, inst.operands)
 
-
-def tokens_have_macros(tokens, macros):
-    for line in tokens:
-        if line[0] in macros:
-            return True
+    return instructions

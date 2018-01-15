@@ -30,9 +30,7 @@ def main():
 
     instructions = token_parser(lines_of_tokens)
 
-    sys.exit(0)
-
-    instructions = parse_file(file_in)
+    # instructions = parse_file(file_in) # TODO: Remove
 
     with open(file_preprocessed, "w") as f:
         for inst in instructions:
