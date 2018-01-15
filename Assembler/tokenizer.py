@@ -70,7 +70,8 @@ def tokenize_file(filename):
                         if len(line_of_tokens) == 0:
                             # Missing label error
                             show_syntax_error("Missing label", line, i, index)
-                        if line_of_tokens[-1].t_type not in [TokenType.OPCODE, TokenType.LABEL_SYMBOLIC, TokenType.LABEL_NUMERIC]:
+                        if line_of_tokens[-1].t_type not in [TokenType.OPCODE, TokenType.LABEL_SYMBOLIC,
+                                                             TokenType.LABEL_NUMERIC]:
                             # Invalid label error
                             prev_token = line_of_tokens[-1]
                             show_syntax_error("Invalid label", line, i, prev_token.file_index_start)
@@ -148,18 +149,18 @@ def _test():
         for j, token in enumerate(line):
             try:
                 assert (token.text == expected_output[i][j])
-            except AssertionError as ae:
+            except AssertionError:
                 test_error_count += 1
-                cntx = "Line index {}, token index {}\n".format(i, j)
+                context = "Line index {}, token index {}\n".format(i, j)
                 error_msg = "  expected `{}`, but was `{}`".format(expected_output[i][j], token.text)
-                print(cntx, error_msg, sep="", file=sys.stderr)
+                print(context, error_msg, sep="", file=sys.stderr)
             try:
                 assert (token.t_type == expected_types[i][j])
-            except AssertionError as ae:
+            except AssertionError:
                 test_error_count += 1
-                cntx = "Line index {}, token index {}\n".format(i, j)
+                context = "Line index {}, token index {}\n".format(i, j)
                 error_msg = "  expected `{}`, but was `{}`".format(expected_types[i][j], token.t_type)
-                print(cntx, error_msg, sep="", file=sys.stderr)
+                print(context, error_msg, sep="", file=sys.stderr)
 
     time.sleep(0.005)
 
@@ -174,4 +175,3 @@ def _test():
 
 if __name__ == "__main__":
     _test()
-

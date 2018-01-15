@@ -38,8 +38,6 @@ def main():
     
     combinator_signals = inst_to_signals(instructions)
 
-    # print(combinator_signals)
-
     # create blueprint
 
     bp = Blueprint()
