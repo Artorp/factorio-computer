@@ -1,0 +1,29 @@
+; Macros can call each other.
+; But with no state and no pre-processing branches, recursion leads to infinite loop
+
+; Macros will fail to compile if they lead to circular dependencies
+
+#macro one 0
+two
+three
+#endm
+
+#macro two 0
+four
+#endm
+
+#macro three 0
+two
+#endm
+
+#macro four 0
+five
+#endm
+
+#macro five 0
+six
+#endm
+
+#macro six 0
+one
+#endm
