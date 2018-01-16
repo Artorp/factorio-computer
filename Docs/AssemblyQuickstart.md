@@ -113,16 +113,71 @@ TST R/I | Update ALU flags based on o1 | `TST R1`<br>`TST -1`
 
 ## Labels
 
+A label is a destination for branch instructions. Internally the label is the absolute PC address, and it can be used as any other number. There are two kinds of labels, symbolic and numeric.
+
 ### Symbolic labels (global)
+
+Symbolic labels are global in nature. They can only be defined once.
+
+Example:
+
+```
+MOV R1, 10
+B label
+MOV R1, 5    ; This instruction will be skipped
+label:
+NOP
+```
 
 ### Numeric labels (local)
 
+Numeric labels are local. A label with a single digit 0-9 is considered a numeric label. They can be defined multiple times. When branching to a numeric label, the digit must be followed by a "f" (for forward) or "b" (for back).
+
+Example:
+```
+1:
+MOV R1, R2
+B 1f
+MOV R1, 5    ; This instruction will be skipped
+1:
+NOP
+```
+
 ## Definitions
 
-`#def <from> <to>`
+Definitions are a mapping from one keyword to another. Definitions are replaced during the pre-processing stage when compiling.
+
+Syntax:
+
+`#def <name> <to_replace>`
+
+Example:
+```
+#def memory_size 0x100
+#def MOV CMP
+```
 
 ## Macros
 
-`#macro <name> <number_of_parameters>`
+Like definitions, macros are evaluated during the pre-processing stage. Macros can cull down on repetitive code.
 
-`#mend`
+Syntax:
+```
+#macro <name> <number_of_parameters>
+<lines_to_be_inserted>
+#mend
+```
+
+Example:
+```
+#macro push_three 3
+PUSH $0
+PUSH $1
+PUSH $2
+#endm
+
+push_three R1 R2 PC
+```
+
+See the macro demo (demo_macros.fal) for more examples.
+
