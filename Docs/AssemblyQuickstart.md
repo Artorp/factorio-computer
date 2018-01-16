@@ -12,21 +12,21 @@ There are 32 general purpose registers labelled **R0** through **R31**.
 
 ### Notation
 
-In explanation, the operands are labelled:
-
+In the explanation, the operands are labelled:
+```
 OPCODE o1, o2, o3
+```
+and so on.
 
-and so on
+The `/` symbol is used to signify a choice between different operand types. The different operand types are in the table below.
 
-I = Immediate value, 32 bit signed
-
-R = Register
-
-R/I = Register or immediate value
-
-R/I/R, I = Register or immediate or both (comma separated)
-
-R/L = Register or label
+Notation | Description
+:---: | ---
+I | Immediate value, 32 bit signed
+R | Register
+R/I | Register or immediate value
+R/I/R,I | Register or immediate or both (comma separated)
+R/L | Register or label
 
 ### Basic instructions
 
@@ -72,7 +72,7 @@ LSL R, R/I, R/I | o1 := o2 << o3 | `LSL R1, R2, R3`
 LSR R, R/I | o1 := o2 >> 1 | `LSR R1, R2`
 ROL R, R/I | o1 := o2 binary rotated left once | `ROL R1, 0x100`
 ROR R, R/I | o1 := o2 binary rotated right once | `ROR R1, R2`
-NOT R, R/I | o1 := o2 xor 0xffffffff | `NOT R1, R2`
+NOT R, R/I | o1 := ~o2<br>o1 := o2 xor 0xffffffff | `NOT R1, R2`
 AND R, R/I, R/I | o1 := o2 & o3 | `AND R1, 0b10, 0b11`
 OR R, R/I, R/I | o1 := o2 | o3 | `OR R1, R2, R3`
 XOR R, R/I, R/I | o1 := o2 xor o3 | `XOR R1, R2, R3`
