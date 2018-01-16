@@ -74,4 +74,4 @@ def strip_signal(signal: str) -> str:
 
 
 if __name__ == "__main__":
-    full_signal_encoding_markdown_table()
+    make_opcodes_readable()

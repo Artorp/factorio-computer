@@ -2,6 +2,7 @@
 
 from collections import OrderedDict
 from operand_type import OperandType
+import registers as reg
 
 
 opcodes = OrderedDict()
@@ -41,6 +42,28 @@ def store_inst():
         [OperandType.REGISTER, {"signal-U": "var"}],
         [OperandType.REG_OR_IMM_OR_BOTH,
          {"signal-K": 1, "signal-0": "var"}, {"signal-A": "var"}]
+    ]
+    return signals, encoding
+
+
+@tag("PUSH")
+def push_inst():
+    signals = {"copper-plate": 13, "signal-K": 1, "signal-0": reg.register_dict["SP"], "signal-A": 0, "signal-O": -1,
+               "signal-2": 1, "signal-red": 1}
+    encoding = [
+        [OperandType.REG_OR_IMM,
+         {"signal-L": 1, "signal-1": "var"}, {"signal-B": "var"}]
+    ]
+    return signals, encoding
+
+
+@tag("POP")
+def pop_inst():
+    signals = {"copper-plate": 16, "signal-K": 1, "signal-0": reg.register_dict["SP"], "signal-A": 1,
+               "signal-2": 1, "signal-red": 1, "signal-V": reg.register_dict["SP"], }
+    encoding = [
+        [OperandType.REGISTER,
+         {"signal-U": "var"}]
     ]
     return signals, encoding
 

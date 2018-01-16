@@ -1,24 +1,23 @@
-; Fibonacci number generator
+; Usage of the stack and the stack pointer
 
-#def f_0 0
-#def f_1 1
-#def mem_start 2
-#def end_index 64
+; The stack pointer starts at the end of memory and grows up
+; Advancing the stack pointer means subtracting from it
 
-; setup
-; insert the two first numbers into memory
-MOV R3, 0 ; mem index
-MOV R0, 0 ; 1st number
-STORE R0, [0]
-MOV R0, 1 ; 2nd number
-STORE R0, [1]
-MOV R1, f_1 ; prev
-MOV R2, f_0 ; 2nd prev
-fib_loop:
-ADD R0, R1, R2 ; 3rd number
-MOV R2, R1
-MOV R1, R0
-STORE R0, [R3, mem_start]
-INC R3
-CMP R3, end_index
-BN fib_loop
+; When using the stack, the stack pointer should be initialized to end of memory
+
+CMEM
+
+;MOV SP, 0xff ; Using 256 words
+
+1:
+PUSH 10
+PUSH 20
+PUSH 30
+PUSH 40
+PUSH 1b
+POP R4
+POP R3
+POP R2
+POP R1
+POP R0
+B 1b

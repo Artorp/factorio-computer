@@ -3,7 +3,7 @@
 
 import integer_literal as int_l
 import registers
-from exceptions import show_syntax_error
+from exceptions import show_syntax_error, show_warning_one_line
 from instruction import Instruction
 from opcode_map import opcodes
 from operand_type import OperandType
@@ -12,11 +12,24 @@ from operand_type import OperandType
 def inst_to_signals(instructions):
     const_comb_signals = list()
 
+    # Warning checks, check if SP is written to / initialized before using push or pop
+    sp_written = False
+    opcodes_ordered = list(opcodes)  # opcodes is ordered dict
+    alu_opcodes = opcodes_ordered[opcodes_ordered.index("ALU"):opcodes_ordered.index("XOR")]
+
     for inst in instructions:
         assert isinstance(inst, Instruction)
         opcode = inst.opcode.text
         if opcode.upper() not in opcodes:
             show_syntax_error("Unknown opcode {}".format(opcode), inst)
+
+        if opcode.upper() == "LOAD" or opcode.upper() in alu_opcodes:
+            if inst.operands[0].text == "SP":
+                sp_written = True
+        elif opcode.upper() in ["PUSH", "POP"] and not sp_written:
+            show_warning_one_line(opcode.upper() + " used before stack pointer initialized. Undefined behavior.", inst.opcode)
+            sp_written = True  # Only show one warning
+
         control_signals, encoding = opcodes[opcode.upper()]()
         instruction_signals = iterate_operands(inst, control_signals, encoding)
 

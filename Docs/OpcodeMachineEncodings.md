@@ -34,6 +34,20 @@ Control | copper-plate: 4
 Operand_1 | U: *value*
 Operand_2 | K: 1, 0: *value*<br>A: *value*
 
+### PUSH
+
+Operand | Signals
+--- | ---
+Control | copper-plate: 13, K: 1, 0: -2, A: 0, O: -1, 2: 1, red: 1
+Operand_1 | L: 1, 1: *value*<br>B: *value*
+
+### POP
+
+Operand | Signals
+--- | ---
+Control | copper-plate: 16, K: 1, 0: -2, A: 1, 2: 1, red: 1, V: -2
+Operand_1 | U: *value*
+
 ### B
 
 Operand | Signals

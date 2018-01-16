@@ -1,6 +1,7 @@
 # Maps symbolic names of register to their index
 
 register_dict = {
+    "SP": -2,
     "PC": -1,
     "R0": 0,
     "R1": 1,
