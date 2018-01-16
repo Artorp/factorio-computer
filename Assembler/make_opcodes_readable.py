@@ -50,7 +50,20 @@ def full_signal_encoding_markdown_table():
         # iterate over each operand
         for i, o in enumerate(enc):
             markdown_table += "Operand_{} | ".format(str(i + 1))
-            # TODO: Add each signal, insert <br> if both reg and imm possible
+            o = o[1:]
+            for signals in o:
+                for sig_key in signals:
+                    s = strip_signal(sig_key)
+                    val = signals[sig_key]
+                    if val == "var":
+                        val = "*value*"
+                    markdown_table += "{}: {}, ".format(s, val)
+                if len(signals) > 0:
+                    markdown_table = markdown_table[:-2]
+                markdown_table += "<br>"
+            if len(o) > 0:
+                markdown_table = markdown_table[:-4]
+            markdown_table += "\n"
     print(markdown_table)
 
 
