@@ -159,7 +159,7 @@ Example:
 
 ## Macros
 
-Like definitions, macros are evaluated during the pre-processing stage. Macros can cull down on repetitive code.
+Like definitions, macros are evaluated during the pre-processing stage. Macros can reduce repetitive code.
 
 Syntax:
 ```
