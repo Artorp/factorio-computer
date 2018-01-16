@@ -2,15 +2,15 @@
 
 A quick rundown of the assembly language used for this machine
 
-# Registers
+## Registers
 
 There are 32 general purpose registers labelled **R0** through **R31**.
 
 **PC** is a special register that contains the program counter. It is read-only and can only be written to by using a branching instruction (`B`, `BZ`, or `BN`), see below.
 
-# Instruction overview
+## Instruction overview
 
-## Notation
+### Notation
 
 In explanation, the operands are labelled:
 
@@ -28,7 +28,7 @@ R/I/R, I = Register or immediate or both (comma separated)
 
 R/L = Register or label
 
-## Basic instructions
+### Basic instructions
 
 Instruction | Description | Example usage
 --- | --- | ---
@@ -36,7 +36,7 @@ HLT | Stop the computer | `HLT`
 NOP | No operation (skip a CPU cycle) | `NOP`
 MOV R, R/I | o1 := o2<br>Note: Updates ALU flags | `MOV R0, 5`<br>`MOV R1, PC`
 
-## Memory instructions
+### Memory instructions
 
 The computer has access to 256 words in memory, each storing a 32-bit signed integer.
 
@@ -48,9 +48,9 @@ CMEM | Clear RAM and registers | `CMEM`
 CREG | Clear registers | `CREG`
 CRAM | Clear RAM | `CRAM`
 
-## ALU instructions
+### ALU instructions
 
-### Arithmetic
+#### Arithmetic
 
 Instruction | Description | Example usage
 --- | --- | ---
@@ -63,7 +63,7 @@ DIV R, R/I, R/I | o1 := o2 / o3<br>(rounded down) | `DIV R1, R5, 10`
 POW R, R/I, R/I | o1 := o2^o3 | `POW R1, R2, R3`
 MOD R, R/I, R/I | o1 := o2 % o3 | `MOD R1, 10, R8`
 
-### Logical
+#### Logical
 
 Instruction | Description | Example usage
 --- | --- | ---
@@ -77,7 +77,7 @@ AND R, R/I, R/I | o1 := o2 & o3 | `AND R1, 0b10, 0b11`
 OR R, R/I, R/I | o1 := o2 | o3 | `OR R1, R2, R3`
 XOR R, R/I, R/I | o1 := o2 xor o3 | `XOR R1, R2, R3`
 
-## Branch instructions
+### Branch instructions
 
 Conditional branches are based on the ALU flags Z and N, which are set based on the last number to run through the ALU. Z means the result was 0, N means the result was negative, and the absense of any flag means the result was a positive non-zero number.
 
@@ -89,17 +89,17 @@ BN R/L | Branch if N-flag set | `BN some_label`
 CMP R/I, R/I | Update ALU flags based on o1 - o2 | `CMP R1, R2`
 TST R/I | Update ALU flags based on o1 | `TST R1`<br>`TST -1`
 
-# Labels
+## Labels
 
-## Symbolic labels (global)
+### Symbolic labels (global)
 
-## Numeric labels (local)
+### Numeric labels (local)
 
-# Definitions
+## Definitions
 
 `#def <from> <to>`
 
-# Macros
+## Macros
 
 `#macro <name> <number_of_parameters>`
 
