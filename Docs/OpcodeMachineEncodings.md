@@ -2,6 +2,9 @@
 
 Each opcode and their encoding as signals in the PROM (Programmable Read Only Memory)
 
+Extracted from `opcode_map.py`
+
+If a cell has two lines, the first line is for signals if an immediate value / label is available, the second line is for signals if a register is available.
 
 ### HLT
 
