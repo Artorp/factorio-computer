@@ -12,13 +12,19 @@ The savefile for the computer is included under the FactorioSave folder, titled 
 
 ### By using a symbolic language
 
-This repo comes with its own assembly language. The assembler requires Python 3 and is executed by running `python assembler.py` in a terminal while within the "Assembly" folder. The default file input is `input.fal`, which can be edited with any text editing software. Any syntax errors are shown in terminal output. The output is saved as `output.fal`, and also copied to the clipboard.
-
 See [the assembly quickstart guide](Docs/AssemblyQuickstart.md) for a quick reference on the language.
+
+This repo comes with its own assembly language. It requires Python 3, and any file can be compiled by running
+```
+python assembly.py
+```
+from a terminal while within the "Assembly" directory. The default input file is `input.fal`, which can be edited with any text editing software. Any syntax errors are shown in terminal output. The output is saved as `output.fal`, and also copied to the clipboard (on Windows).
 
 ### By hand
 
-Adventurous people can attempt to program the computer from within Factorio, instruction by instruction. A full overview of the ISA level signal encoding for each instruction can be found here: (!TODO: Insert link). Each 
+Adventurous people can attempt to program the computer from within Factorio, instruction by instruction. A full overview of the ISA level signal encoding for each instruction can be found in the link below.
+
+[Opcode machine encodings](Docs/OpcodeMachineEncodings.md)
 
 ## Starting the computer
 
