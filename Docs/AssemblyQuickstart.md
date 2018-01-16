@@ -8,7 +8,9 @@ There are 32 general purpose registers labelled **R0** through **R31**.
 
 **PC** is a special register that contains the program counter. It is read-only and can only be written to by using a branching instruction (`B`, `BZ`, or `BN`), see below.
 
-**SP** is a special register that contains the stack pointer. It is possible to read from and write to it, but in general it's faster to use the `PUSH` and `POP` registers. Reading with `LOAD R, [SP, -1]` is akin to peek(). When using the stack this should be initialized to the highest word address. See more on the stack below.
+**SP** is a special register that contains the stack pointer. It is possible to read from and write to it, but in general it's faster to use the `PUSH` and `POP` registers. Reading with `LOAD R, [SP, 1]` is akin to peek().
+
+The stack should be initialized to the highest word address before use. See the stack section below.
 
 ## Instruction overview
 
@@ -46,7 +48,7 @@ Instruction | Description | Example usage
 --- | --- | ---
 STORE R/I, [R/I/R,I] | M[sum(o2)] := o1 | `STORE 5, [R5]`<br>`STORE R1, [R2, 5]`<br>`STORE PC, [0]`
 LOAD R, [R/I/R,I] | o1 := M[sum(o2)] | `LOAD R1, [0]`<br>`LOAD R2, [R5, 0xff]`
-PUSH R/I | M[SP] := o1, SP = SP + 1 | `PUSH 5`<br>`PUSH R2`
+PUSH R/I/L | M[SP] := o1, SP = SP + 1 | `PUSH 5`<br>`PUSH R2`<br>`PUSH some_label`
 POP R | SP = SP - 1, R := M[SP] | `POP R0`
 CMEM | Clear RAM and registers | `CMEM`
 CREG | Clear registers | `CREG`
@@ -56,7 +58,7 @@ CRAM | Clear RAM | `CRAM`
 
 The top of the stack is initially at the memory address in the stack pointer (`SP`). The stack grows "down" in memory, so pushing decreases the stack pointer, and popping increases it.
 
-There is yet no stack overflow exception, should the stack overflow it will begin overwriting the RAM from the buttom up.
+There is yet no stack overflow detection, should the stack overflow it will begin overwriting the RAM from the buttom up.
 
 When using the stack the stack pointer should be initialized to the desired last address. For 256 words, it will be adress 255, or 0xff. Example program:
 
