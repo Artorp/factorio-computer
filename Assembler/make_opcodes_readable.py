@@ -24,12 +24,12 @@ def make_opcodes_readable():
     readable_opcodes = ""
     for opcode in encodings:
         readable_opcodes += opcode
-        if len(encodings[opcode]) == 0:
-            readable_opcodes += "\n"
-            continue
         for encoding in encodings[opcode]:
             readable_opcodes += " {},".format(operand_readable[encoding])
-        readable_opcodes = readable_opcodes[:-1]
+        if len(encodings[opcode]) > 0:
+            # remove last comma
+            readable_opcodes = readable_opcodes[:-1]
+        # readable_opcodes += " | action | example"
         readable_opcodes += "\n"
     print(readable_opcodes)
 
