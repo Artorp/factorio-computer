@@ -34,5 +34,31 @@ def make_opcodes_readable():
     print(readable_opcodes)
 
 
+def full_signal_encoding_markdown_table():
+    encodings = OrderedDict()
+    markdown_table = ""
+    for opcode in opcodes:
+        markdown_table += "\n### {}\n\nOperand | Signals\n--- | ---\n".format(opcode)
+        sig, enc = opcodes[opcode]()
+        markdown_table += "Control | "
+        for sig_key in sig:
+            s = strip_signal(sig_key)
+            markdown_table += "{}: {}, ".format(s, sig[sig_key])
+        if len(sig) > 0:
+            markdown_table = markdown_table[:-2]
+        markdown_table += "\n"
+        # iterate over each operand
+        for i, o in enumerate(enc):
+            markdown_table += "Operand_{} | ".format(str(i + 1))
+            # TODO: Add each signal, insert <br> if both reg and imm possible
+    print(markdown_table)
+
+
+def strip_signal(signal: str) -> str:
+    if signal.startswith("signal-"):
+        signal = signal[7:]
+    return signal
+
+
 if __name__ == "__main__":
-    make_opcodes_readable()
+    full_signal_encoding_markdown_table()
