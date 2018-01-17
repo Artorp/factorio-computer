@@ -3,9 +3,10 @@
 ; loop up to number (exclusive)
 #def upper_range 5
 MOV R0, 0 ; index
+
 loop:
-; Statement(s), do something within the loop
-MOV R1, R0
+    ; Statement(s), do something within the loop
+    MOV R1, R0
 ; End statement(s), evaluate loop condition
 INC R0
 CMP R0, upper_range
@@ -15,12 +16,12 @@ BN loop
 ; local (numeric) labels, one digit
 1: MOV R2, 42
 TST 0
-BN 1b ; branch back to previous 1-label
-B 2f  ; branch forward to next 2-label
-1: TST -1 ; labels can be redefined
-2: NOP ; define a 2-label
-BN 2f  ; branch forward to next 2-label (if negative)
-B 1b   ; branch back to previous 1-label
+BN 1b      ; branch back to previous 1-label
+B 2f       ; branch forward to next 2-label
+1: TST -1  ; numeric labels can be redefined
+2: NOP     ; define a 2-label
+BN 2f      ; branch forward to next 2-label (if negative)
+B 1b       ; branch back to previous 1-label
 2: MOV R3, 12345
 
 ; Done

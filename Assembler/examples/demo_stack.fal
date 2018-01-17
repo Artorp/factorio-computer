@@ -1,5 +1,7 @@
 ; Stack example
 
+
+; initialize the stack
 CMEM
 MOV SP, 0xff
 
