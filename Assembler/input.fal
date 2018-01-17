@@ -1,103 +1,138 @@
-; procedure demo
-; implements a procedure call by using a stack
-
-CMEM
-MOV SP, 0xff ; Initialize stack pointer to last memory word
-
-B 1f
-
-; Procedure: mult
-; Parameters: x, y
-; Output: x * y + 20 x
-
-mult:
-POP R0 ; x
-POP R1 ; y
-MUL R2, R0, R1 ; x * y
-MUL R1, R0, 20 ; x * 20
-ADD R0, R1, R2 ; final sum
-POP R1 ; Return address
-PUSH R0
-B R1
-
-1:
+; quicksort, hoare partition
 
 
-; Call procedure by pushing the return address, then the parameters in reverse order
-
-; Example call
-; inputs:
-MOV R0, 5  ; x
-MOV R1, 10 ; y
-; Expected output: 5*10 + 5*20 = 150
-PUSH 1f ; Push return address
-PUSH R1
-PUSH R0
-B mult
-1:
-POP R2 ; Result is stored in R2
-
-; A macro for calling procedure with 2 parameters:
-#macro func_2_params 4 ; function, param1, param2, output register
-PUSH 1f
-PUSH $2
-PUSH $1
-B $0
-1:
-POP $3
+; call a subroutine $0 with parameters $1 and $2
+#macro call_two_param 3
+PUSH 9f ; return address
+PUSH $2 ; second param
+PUSH $1 ; first param
+B $0    ; branch
+9:
 #endm
 
-func_2_params mult 10 20 R0
-; x = 10, y = 20
-; result stored in R0
 
-; use the above procedure on values in 0-7 and 8-15 in memory
-; fill 0-7 with 1-8, and 8-15 with 10-17
+; initialize stack
+CMEM
+MOV SP, 0xff
 
-STORE 1, [0]
-STORE 2, [1]
-STORE 3, [2]
-STORE 4, [3]
-STORE 5, [4]
-STORE 6, [5]
-STORE 7, [6]
-STORE 8, [7]
 
-STORE 10, [8]
-STORE 11, [9]
-STORE 12, [10]
-STORE 13, [11]
-STORE 14, [12]
-STORE 15, [13]
-STORE 16, [14]
-STORE 17, [15]
 
-; use mult procedure on array 0..7 and 8..15, save output to 0..7
+B end_func_def
 
-; R0: adr
-; R1: data
+; quicksort(lo, hi), A is implied in lo and hi
+quicksort:
+POP R0 ; lo
+POP R1 ; hi
 
-MOV R0, 0 ; index
-start_loop:
-CMP R0, 8 ; N if i < length
-BN 2f
+; if lo < hi
+CMP R0, R1
+BN 2f ; branch if R0 < R1
 B 3f
-2:
+    2: ; then
 
-; loop statements
-LOAD R1, [R0] ; R1 = x[i]
-LOAD R2, [R0, 8] ; R2 = y[i]
-; save local variables before procedure call
-PUSH R0 ; i
-func_2_params mult R1 R2 R1
-POP R0 ; i
-; result is in R1
-STORE R1, [R0]
+    ; p = partition(lo, hi)
+    PUSH R1 ; hi
+    PUSH R0 ; lo
+    call_two_param partition R0 R1
+    POP R2 ; p
+    POP R0 ; lo
 
-INC R0
-B start_loop
+        ; POP R1 ; hi
+    ; Call quicksort(lo, p)
+        ; PUSH R1 ; hi
+    PUSH R2 ; p
+    call_two_param quicksort R0 R2
+    POP R2 ; p
+    POP R1 ; hi
+
+    ; Call quicksort(p + 1, hi)
+    INC R2 ; p + 1
+    call_two_param quicksort R2 R1
+
 3:
+; pop return address
+POP R0
+B R0
 
-; Expected output: [30, 62, 96, 132, 170, 210, 252, 296]
-; Done!
 
+; partition(lo, hi)
+partition:
+POP R0 ; lo
+POP R1 ; hi
+
+; pivot = A[lo]
+LOAD R2, [R0] ; R2 = pivot
+SUB R3, R0, 1 ; i = lo - 1
+ADD R4, R1, 1 ; j = hi + 1
+1: ; loop forever
+    2:
+    ; do
+        ; i = i + 1
+        INC R3
+    ; while A[i] < pivot
+    LOAD R5, [R3]
+    CMP R5, R2
+    BN 2b ; branch if R5 < R2, A[i] < pivot
+
+    2:
+    ; do
+        ; j = j - i
+        DEC R4
+    ; while A[j] > pivot
+    LOAD R6, [R4]
+    CMP R2, R6
+    BN 2b ; branch if R2 < R5, pivot < A[j]
+
+    ; if i >= j, if !(i < j)
+    CMP R3, R4 ; N if i < j
+    BN 3f
+        ; then
+        ; return j
+        POP R0 ; return address
+        PUSH R4
+        B R0
+    3:
+
+    ; swap A[i] with A[j]
+    STORE R6, [R3]
+    STORE R5, [R4]
+B 1b
+
+POP R0 ; return address
+B R0
+
+
+end_func_def:
+
+
+
+
+
+; test
+
+; input array
+; 0..15
+#macro array 16
+STORE $0, [0]
+STORE $1, [1]
+STORE $2, [2]
+STORE $3, [3]
+STORE $4, [4]
+STORE $5, [5]
+STORE $6, [6]
+STORE $7, [7]
+STORE $8, [8]
+STORE $9, [9]
+STORE $10, [10]
+STORE $11, [11]
+STORE $12, [12]
+STORE $13, [13]
+STORE $14, [14]
+STORE $15, [15]
+#endm
+
+; random numbers from random.org
+array 6 -922868 -7514 -68800 -3 62 192677 193 73500220 -76 4359 -8376837 2921565 -17324976 97484 -255
+
+; quicksort(A, 0, length(A)-1)
+call_two_param quicksort 0 15

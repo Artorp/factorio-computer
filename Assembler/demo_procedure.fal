@@ -6,8 +6,7 @@ MOV SP, 0xff ; Initialize stack pointer to last memory word
 
 B 1f
 
-; Procedure: mult
-; Parameters: x, y
+; Procedure: mult(x, y)
 ; Output: x * y + 20 x
 
 mult:
