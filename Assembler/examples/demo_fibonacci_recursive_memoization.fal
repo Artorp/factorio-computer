@@ -1,4 +1,4 @@
-; Fibonacci recursive, with memoization
+; Factorio recursive, with memoization
 
 #def fib_n 12
 
