@@ -1,23 +1,101 @@
-; Usage of the stack and the stack pointer
-
-; The stack pointer starts at the end of memory and grows up
-; Advancing the stack pointer means subtracting from it
-
-; When using the stack, the stack pointer should be initialized to end of memory
+; procedure demo
+; implements a procedure call by using a stack
 
 CMEM
+MOV SP, 0xff ; Initialize stack pointer to last memory word
 
-;MOV SP, 0xff ; Using 256 words
 
+; Procedure: mult
+; Parameters: x, y
+; Output: x * y + 20 x
+B skip_mult
+mult:
+POP R0 ; x
+POP R1 ; y
+MUL R2, R0, R1 ; x * y
+MUL R1, R0, 20 ; x * 20
+ADD R0, R1, R2 ; final sum
+POP R1 ; Return address
+PUSH R0
+B R1
+skip_mult:
+
+
+; Call procedure by pushing the return address, then the parameters in reverse order
+
+; Example call
+; inputs:
+MOV R0, 5  ; x
+MOV R1, 10 ; y
+; Expected output: 5*10 + 5*20 = 150
+PUSH 1f ; Push return address
+PUSH R1
+PUSH R0
+B mult
 1:
-PUSH 10
-PUSH 20
-PUSH 30
-PUSH 40
-PUSH 1b
-POP R4
-POP R3
-POP R2
-POP R1
-POP R0
-B 1b
+POP R2 ; Result is stored in R2
+
+; A macro for calling procedure with 2 parameters:
+#macro func_2_params 4 ; function, param1, param2, output register
+PUSH 1f
+PUSH $2
+PUSH $1
+B $0
+1:
+POP $3
+#endm
+
+func_2_params mult 10 20 R0
+; x = 10, y = 20
+; result stored in R0
+
+; use the above procedure on values in 0-7 and 8-15 in memory
+; fill 0-7 with 1-8, and 8-15 with 10-17
+
+STORE 1, [0]
+STORE 2, [1]
+STORE 3, [2]
+STORE 4, [3]
+STORE 5, [4]
+STORE 6, [5]
+STORE 7, [6]
+STORE 8, [7]
+
+STORE 10, [8]
+STORE 11, [9]
+STORE 12, [10]
+STORE 13, [11]
+STORE 14, [12]
+STORE 15, [13]
+STORE 16, [14]
+STORE 17, [15]
+
+; use mult procedure on array 0..7 and 8..15, save output to 0..7
+
+; R0: adr
+; R1: data
+
+MOV R0, 0 ; index
+start_loop:
+CMP R0, 8 ; N if i < length
+BN 2f
+B 3f
+2:
+
+; loop statements
+LOAD R1, [R0] ; R1 = x[i]
+LOAD R2, [R0, 8] ; R2 = y[i]
+; save local variables before procedure call
+PUSH R0 ; i
+func_2_params mult R1 R2 R1
+POP R0 ; i
+; result is in R1
+STORE R1, [R0]
+
+INC R0
+B start_loop
+3:
+
+; Expected output: [30, 62, 96, 132, 170, 210, 252, 296]
+; Done!
+

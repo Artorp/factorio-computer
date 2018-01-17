@@ -1,39 +1,24 @@
 ; Stack example
 
-#def stack_reg R7
-#def stack_adr 10 ; Use adr 10 and down for the stack
-
-MOV stack_reg, stack_adr
-
-; PUSH Rx
-; STORE Rx, [stack_reg]
-; ADD stack_reg, stack_reg, 1
-
-; POP Rx
-; SUB stack_reg, stack_reg, 1
-; LOAD Rx, [stack_reg]
+CMEM
+MOV SP, 0xff
 
 ; some code
 
 MOV R1, 5
-MOV R2, 6
+MOV R2, 10
 
 ; Push R1, R2
 
-STORE R1, [stack_reg]
-INC stack_reg
-STORE R2, [stack_reg]
-INC stack_reg
+PUSH R1
+PUSH R2
 
 ; some other code
 
 MOV R1, 100
 MOV R2, 101
 
-; Pop R2, R1
+; Pop R1, R2, reverse order
 
-DEC stack_reg
-LOAD R2, [stack_reg]
-DEC stack_reg
-LOAD R1, [stack_reg]
-
+POP R2 ; 10
+POP R1 ; 5
