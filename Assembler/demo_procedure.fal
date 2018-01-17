@@ -4,11 +4,12 @@
 CMEM
 MOV SP, 0xff ; Initialize stack pointer to last memory word
 
+B 1f
 
 ; Procedure: mult
 ; Parameters: x, y
 ; Output: x * y + 20 x
-B skip_mult
+
 mult:
 POP R0 ; x
 POP R1 ; y
@@ -18,7 +19,8 @@ ADD R0, R1, R2 ; final sum
 POP R1 ; Return address
 PUSH R0
 B R1
-skip_mult:
+
+1:
 
 
 ; Call procedure by pushing the return address, then the parameters in reverse order
