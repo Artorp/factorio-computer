@@ -49,7 +49,7 @@ def store_inst():
 @tag("PUSH")
 def push_inst():
     signals = {"copper-plate": 13, "signal-K": 1, "signal-0": reg.register_dict["SP"], "signal-A": 0, "signal-O": -1,
-               "signal-2": 1, "signal-red": 1}
+               "signal-2": 1, "signal-red": 1, "signal-U": reg.register_dict["SP"]}
     encoding = [
         [OperandType.REG_OR_IMM,
          {"signal-L": 1, "signal-1": "var"}, {"signal-B": "var"}]
