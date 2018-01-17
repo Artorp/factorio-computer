@@ -1,4 +1,4 @@
-; Fibonacci number generator
+; Fibonacci number generator, iterative
 
 #def f_0 0
 #def f_1 1
