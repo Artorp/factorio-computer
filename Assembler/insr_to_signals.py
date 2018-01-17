@@ -21,7 +21,7 @@ def inst_to_signals(instructions):
         assert isinstance(inst, Instruction)
         opcode = inst.opcode.text
         if opcode.upper() not in opcodes:
-            show_syntax_error("Unknown opcode {}".format(opcode), inst)
+            show_syntax_error("Unknown opcode {}".format(opcode), inst.opcode)
 
         if opcode.upper() == "LOAD" or opcode.upper() in alu_opcodes:
             if inst.operands[0].text == "SP":
