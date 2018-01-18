@@ -39,6 +39,8 @@ Instruction | Description | Example usage
 HLT | Stop the computer | `HLT`
 NOP | No operation (skip a CPU cycle) | `NOP`
 MOV R, R/I | o1 := o2<br>Note: Updates ALU flags | `MOV R0, 5`<br>`MOV R1, PC`
+HLTG | Stop computer with success sound | `HLTG`
+HLTB | Stop computer with error sound | `HLTB`
 
 ### Memory instructions
 

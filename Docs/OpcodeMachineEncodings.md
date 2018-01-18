@@ -12,6 +12,18 @@ Operand | Signals
 --- | ---
 Control | 
 
+### HLTG
+
+Operand | Signals
+--- | ---
+Control | copper-plate: 6, cyan: 1, A: 1
+
+### HLTB
+
+Operand | Signals
+--- | ---
+Control | copper-plate: 6, cyan: 1, A: 2
+
 ### NOP
 
 Operand | Signals
