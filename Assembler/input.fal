@@ -131,7 +131,7 @@ STORE $14, [14]
 STORE $15, [15]
 #endm
 
-; random numbers from random.org
+; random numbers of different magnitudes
 array 6 -922868 -7514 -68800 -3 62 192677 193 73500220 -76 4359 -8376837 2921565 -17324976 97484 -255
 
 ; quicksort(A, 0, length(A)-1)
