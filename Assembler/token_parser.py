@@ -164,7 +164,7 @@ def token_parser(tokens):
         # create instruction object
         opcode = line[0]
         operands = line[1:]
-        instruction = Instruction(opcode, operands, opcode.file_line_num, opcode.file_raw_text)
+        instruction = Instruction(opcode, operands)
         instructions.append(instruction)
 
     # replace each branch label with the program address
@@ -204,7 +204,7 @@ def token_parser(tokens):
         fake_token_line = list()
         fake_token = Token("HLTG", TokenType.OPCODE, last_line + 1, fake_raw_inst, 0, fake_token_line)
         fake_token_line.append(fake_token)
-        halt_successfully = Instruction(fake_token, list(), last_line + 1, fake_raw_inst)
+        halt_successfully = Instruction(fake_token, list())
         instructions.append(halt_successfully)
 
     return instructions
