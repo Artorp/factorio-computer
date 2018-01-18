@@ -198,4 +198,13 @@ def token_parser(tokens):
     # for inst in instructions:
     #     print(inst.opcode, inst.operands)
 
+    if constants.APPEND_EXITCODE_SUCCESS:
+        last_line = tokens[-1][0].file_line_num
+        fake_raw_inst = "HLTG ; appended exit code"
+        fake_token_line = list()
+        fake_token = Token("HLTG", TokenType.OPCODE, last_line + 1, fake_raw_inst, 0, fake_token_line)
+        fake_token_line.append(fake_token)
+        halt_successfully = Instruction(fake_token, list(), last_line + 1, fake_raw_inst)
+        instructions.append(halt_successfully)
+
     return instructions

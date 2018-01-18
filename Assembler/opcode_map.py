@@ -18,6 +18,18 @@ def hlt_inst():
     return dict(), []
 
 
+@tag("HLTG")
+def hltg_inst():
+    signals = {"copper-plate": 6, "signal-cyan": 1, "signal-A": 1}
+    return signals, []
+
+
+@tag("HLTB")
+def hltb_inst():
+    signals = {"copper-plate": 6, "signal-cyan": 1, "signal-A": 2}
+    return signals, []
+
+
 @tag("NOP")
 def nop_inst():
     return {"copper-plate": 1}, []

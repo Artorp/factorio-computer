@@ -2,6 +2,7 @@
 
 
 class Instruction:
+    # TODO: Drop line number and raw instructions, are in token object
     def __init__(self, opcode, operands, line, raw_instruction):
         self.opcode = opcode
         self.operands = operands

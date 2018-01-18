@@ -1,86 +1,13 @@
-; Fibonacci recursive, with memoization
+; Test exit codes
 
-#def fib_n 12
-
+B 3f
+TST R0
+BN 1f
+B 2f
 1:
+MOV R0, 1
+HLTG
 2:
+MOV R0, -1
+HLTB
 3:
-not_used2:
-4:
-not_used:
-
-; init stack
-CMEM
-MOV SP, 0xff
-
-; init 0..fib_n to sentinel value -1
-
-MOV R0, fib_n
-1:
-STORE -1, [R0]
-DEC R0
-BN func_end_def
-B 1b
-
-B func_end_def
-
-fibo_memo:
-POP R0 ; n
-LOAD R1, [R0]
-CMP R1, -1 ; have this value been calculated before?
-BZ 1f
-B fib_return_nosave ; not equal -1, yes
-1:
-; base case, n == 0 or n == 1
-CMP R0, 0
-BZ 0f
-CMP R0, 1
-BZ 1f
-B recursive_calls
-0:
-    MOV R1, 0 ; result
-    B fib_return
-1:
-    MOV R1, 1 ; result
-    B fib_return
-recursive_calls:
-
-PUSH R0 ; n
-
-; call fib(n - 1)
-DEC R0 ; n - 1
-PUSH R0
-call_fib R0
-POP R1 ; fib(n - 1)
-POP R0 ; n - 1
-
-; call fib(n - 2)
-DEC R0 ; n - 2
-PUSH R1 ; fib(n - 1)
-call_fib R0
-POP R0 ; fib(n - 2)
-POP R1 ; fib(n - 1)
-ADD R1, R0, R1 ; fib(n - 1) + fib(n - 2)
-
-POP R0 ; n
-
-fib_return:
-STORE R1, [R0] ; store result in memoization table
-fib_return_nosave:
-POP R0 ; return address
-PUSH R1 ; result
-B R0
-
-func_end_def:
-
-#macro call_fib 1
-PUSH 9f
-PUSH $0
-B fibo_memo
-9:
-#endm
-
-
-call_fib fib_n
-MOV R3, fib_n   ; just for display
-POP R4          ; result is in R4
