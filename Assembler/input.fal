@@ -1,13 +1,138 @@
-; Test exit codes
+; quicksort, hoare partition
 
+
+; call a subroutine $0 with parameters $1 and $2
+#macro call_two_param 3
+PUSH 9f ; return address
+PUSH $2 ; second param
+PUSH $1 ; first param
+B $0    ; branch
+9:
+#endm
+
+
+; initialize stack
+CMEM
+MOV SP, 0xff
+
+
+
+B end_func_def
+
+; quicksort(lo, hi), A is implied in lo and hi
+quicksort:
+POP R0 ; lo
+POP R1 ; hi
+
+; if lo < hi
+CMP R0, R1
+BN 2f ; branch if R0 < R1
 B 3f
-TST R0
-BN 1f
-B 2f
-1:
-MOV R0, 1
-HLTG
-2:
-MOV R0, -1
-HLTB
+    2: ; then
+
+    ; p = partition(lo, hi)
+    PUSH R1 ; hi
+    PUSH R0 ; lo
+    call_two_param partition R0 R1
+    POP R2 ; p
+    POP R0 ; lo
+
+        ; POP R1 ; hi
+    ; Call quicksort(lo, p)
+        ; PUSH R1 ; hi
+    PUSH R2 ; p
+    call_two_param quicksort R0 R2
+    POP R2 ; p
+    POP R1 ; hi
+
+    ; Call quicksort(p + 1, hi)
+    INC R2 ; p + 1
+    call_two_param quicksort R2 R1
+
 3:
+; pop return address
+POP R0
+B R0
+
+
+; partition(lo, hi)
+partition:
+POP R0 ; lo
+POP R1 ; hi
+
+; pivot = A[lo]
+LOAD R2, [R0] ; R2 = pivot
+SUB R3, R0, 1 ; i = lo - 1
+ADD R4, R1, 1 ; j = hi + 1
+1: ; loop forever
+    2:
+    ; do
+        ; i = i + 1
+        INC R3
+    ; while A[i] < pivot
+    LOAD R5, [R3]
+    CMP R5, R2
+    BN 2b ; branch if R5 < R2, A[i] < pivot
+
+    2:
+    ; do
+        ; j = j - i
+        DEC R4
+    ; while A[j] > pivot
+    LOAD R6, [R4]
+    CMP R2, R6
+    BN 2b ; branch if R2 < R5, pivot < A[j]
+
+    ; if i >= j, if !(i < j)
+    CMP R3, R4 ; N if i < j
+    BN 3f
+        ; then
+        ; return j
+        POP R0 ; return address
+        PUSH R4
+        B R0
+    3:
+
+    ; swap A[i] with A[j]
+    STORE R6, [R3]
+    STORE R5, [R4]
+B 1b
+
+POP R0 ; return address
+B R0
+
+
+end_func_def:
+
+
+
+
+
+; test
+
+; input array
+; 0..15
+#macro array 16
+STORE $0, [0]
+STORE $1, [1]
+STORE $2, [2]
+STORE $3, [3]
+STORE $4, [4]
+STORE $5, [5]
+STORE $6, [6]
+STORE $7, [7]
+STORE $8, [8]
+STORE $9, [9]
+STORE $10, [10]
+STORE $11, [11]
+STORE $12, [12]
+STORE $13, [13]
+STORE $14, [14]
+STORE $15, [15]
+#endm
+
+; random numbers from random.org
+array 6 -922868 -7514 -68800 -3 62 192677 193 73500220 -76 4359 -8376837 2921565 -17324976 97484 -255
+
+; quicksort(A, 0, length(A)-1)
+call_two_param quicksort 0 15
