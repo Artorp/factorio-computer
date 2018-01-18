@@ -2,6 +2,13 @@
 
 #def fib_n 12
 
+1:
+2:
+3:
+not_used2:
+4:
+not_used:
+
 ; init stack
 CMEM
 MOV SP, 0xff

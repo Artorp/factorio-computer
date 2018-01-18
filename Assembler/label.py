@@ -5,10 +5,11 @@ from exceptions import ParseFileError, AsmSyntaxError
 
 class NumericLabel:
     """A numeric label is a single digit label from the range 0 to 9. It is a local label."""
-    def __init__(self, digit, pc_adr):
+    def __init__(self, digit, pc_adr, file_line_number):
         self.digit = digit
         self.pc_adr = pc_adr
         self.was_referenced = False
+        self.file_line_number = file_line_number
 
 
 def find_numeric_labels(labels, digit, pc_adr):

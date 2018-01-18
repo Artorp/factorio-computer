@@ -150,7 +150,7 @@ def token_parser(tokens):
                     label = line[0]
                     label_target = len(instructions)  # Target is absolute signed PC address
                     if lb.is_numeric_label(label.text):
-                        label_num = lb.NumericLabel(int(label.text), label_target)
+                        label_num = lb.NumericLabel(int(label.text), label_target, label.file_line_num)
                         numeric_labels.append(label_num)
                     else:
                         if label.text in symbolic_labels:
@@ -189,10 +189,11 @@ def token_parser(tokens):
 
     for numeric_label in numeric_labels:
         if not numeric_label.was_referenced:
-            unused_labels.add(str(numeric_label.digit))
+            unused_labels.add("line {}: {}".format(numeric_label.file_line_number, numeric_label.digit))
 
     if len(unused_labels) > 0:
-        print("Warning: Unused label(s), {}".format(", ".join(unused_labels)), file=sys.stderr)
+        s = "" if len(unused_labels) == 1 else "s"
+        print("Warning: Unused label{}: {}".format(s, ", ".join(unused_labels)), file=sys.stderr)
 
     # for inst in instructions:
     #     print(inst.opcode, inst.operands)
