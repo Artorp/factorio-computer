@@ -15,7 +15,7 @@ A quick rundown of the assembly language used for this machine
   * [Branch instructions](#branch-instructions)
 * [Labels](#labels)
 * [Definitions](#definitions)
-* [Macros](macros)
+* [Macros](#macros)
 
 
 ## Registers
