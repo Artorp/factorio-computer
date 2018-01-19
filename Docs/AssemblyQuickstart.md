@@ -167,7 +167,7 @@ Syntax:
 ```
 #macro <name> <number_of_parameters>
 <lines_to_be_inserted>
-#mend
+#endm
 ```
 
 Example:
