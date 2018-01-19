@@ -2,6 +2,22 @@
 
 A quick rundown of the assembly language used for this machine
 
+### Table of Contents
+* [Registers](#registers)
+* [Instruction overview](#instruction-overview)
+  * [Notation](#notation)
+  * [Basic instructions](#basic-instructions)
+  * [Memory instructions](#memory-instructions)
+    * [The stack](#the-stack)
+  * [ALU instructions](#alu-instructions)
+    * [Arithmetic](#arithmetic)
+    * [Logical](#logical)
+  * [Branch instructions](#branch-instructions)
+* [Labels](#labels)
+* [Definitions](#definitions)
+* [Macros](macros)
+
+
 ## Registers
 
 There are 32 general purpose registers labelled **R0** through **R31**.
