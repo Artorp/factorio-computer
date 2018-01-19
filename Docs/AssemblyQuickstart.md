@@ -66,8 +66,8 @@ Instruction | Description | Example usage
 --- | --- | ---
 STORE R/I, [R/I/R,I] | M[sum(o2)] := o1 | `STORE 5, [R5]`<br>`STORE R1, [R2, 5]`<br>`STORE PC, [0]`
 LOAD R, [R/I/R,I] | o1 := M[sum(o2)] | `LOAD R1, [0]`<br>`LOAD R2, [R5, 0xff]`
-PUSH R/I/L | M[SP] := o1, SP = SP + 1 | `PUSH 5`<br>`PUSH R2`<br>`PUSH some_label`
-POP R | SP = SP - 1, R := M[SP] | `POP R0`
+PUSH R/I/L | M[SP] := o1, SP = SP - 1 | `PUSH 5`<br>`PUSH R2`<br>`PUSH some_label`
+POP R | SP = SP + 1, R := M[SP] | `POP R0`
 CMEM | Clear RAM and registers | `CMEM`
 CREG | Clear registers | `CREG`
 CRAM | Clear RAM | `CRAM`
