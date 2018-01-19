@@ -10,7 +10,7 @@ There are 32 general purpose registers labelled **R0** through **R31**.
 
 **SP** is a special register that contains the stack pointer. It is possible to read from and write to it, but in general it's faster to use the `PUSH` and `POP` registers. Reading with `LOAD R, [SP, 1]` is akin to peek().
 
-The stack should be initialized to the highest word address before use. See the stack section below.
+The stack pointer should be initialized to the highest word address before use. See the stack section below.
 
 ## Instruction overview
 
@@ -62,7 +62,7 @@ The top of the stack is initially at the memory address in the stack pointer (`S
 
 There is yet no stack overflow detection, should the stack overflow it will begin overwriting the RAM from the buttom up.
 
-When using the stack the stack pointer should be initialized to the desired last address. For 256 words, it will be adress 255, or 0xff. Example program:
+The stack pointer should be initialized to the desired last address before using the stack. For 256 words, it will be address 255, or 0xff. Example program:
 
 ```
 MOV SP, 0xff
