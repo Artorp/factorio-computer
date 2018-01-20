@@ -114,7 +114,7 @@ ROL R, R/I | o1 := o2 binary rotated left once | `ROL R1, 0x100`
 ROR R, R/I | o1 := o2 binary rotated right once | `ROR R1, R2`
 NOT R, R/I | o1 := ~o2<br>o1 := o2 xor 0xffffffff | `NOT R1, R2`
 AND R, R/I, R/I | o1 := o2 & o3 | `AND R1, 0b10, 0b11`
-OR R, R/I, R/I | o1 := o2 | o3 | `OR R1, R2, R3`
+OR R, R/I, R/I | o1 := o2 or o3 | `OR R1, R2, R3`
 XOR R, R/I, R/I | o1 := o2 xor o3 | `XOR R1, R2, R3`
 
 ### Branch instructions
